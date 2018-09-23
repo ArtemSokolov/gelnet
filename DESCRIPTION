@@ -1,0 +1,19 @@
+Package: gelnet
+Version: 1.2.1
+Date: 2015-10-16
+License: GPL (>= 3)
+Title: Generalized Elastic Nets
+Description: Implements several extensions of the elastic net regularization
+    scheme. These extensions include individual feature penalties for the L1 term,
+    feature-feature penalties for the L2 term, as well as translation coefficients
+    for the latter.
+Author: Artem Sokolov
+Maintainer: Artem Sokolov <artem.sokolov@gmail.com>
+Depends: R (>= 3.1.0)
+Suggests: knitr, rmarkdown
+VignetteBuilder: knitr
+RoxygenNote: 5.0.1
+Packaged: 2016-04-04 23:16:50 UTC; sokolov
+NeedsCompilation: yes
+Repository: CRAN
+Date/Publication: 2016-04-05 08:14:29

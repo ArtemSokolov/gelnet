@@ -1,0 +1,26 @@
+-------------
+Version 1.2.1
+-------------
+
+-Added gelnet.cv() to perform k-fold cross-validation for automatic parameter selection
+-Simplified user inferface, especially for constructing models with a predefined number of non-zero weights
+-Added a balanced loss computation to logistic regression models to use with heavily-imbalanced datasets
+-Added an option for non-negativity constraint
+
+-----------
+Version 1.2
+-----------
+
+-Changed the names of L1- and L2-norm penalty coefficients to l1 and l2 in objective functions, to be consistent with their optimizers
+-Added one-class regression and its kernel version: gelnet.oneclass() and gelnet.kor()
+-Added an ability to fix the bias term to zero to gelnet.krr()
+-Added silencing option to gelnet.klr()
+-adj2nlapl() is now more stable for networks with "free-floating" nodes
+
+-----------
+Version 1.1
+-----------
+
+-Added a translation component to ridge regression
+-Added kernel ridge regression: gelnet.krr()
+-Added kernel logistic regression: gelnet.klr()
