@@ -1,4 +1,4 @@
-test_that( "linear objective function returns expected values", {
+test_that( "linear objective", {
     ## Preset dimensionality
     n <- 20
     p <- 50
@@ -26,3 +26,4 @@ test_that( "linear objective function returns expected values", {
     expect_equal( gelnet.lin.obj( w, b, X, z, 0.1, 0.1, a, d, P ), matrix(10.11774), tol=1e-5 )
     expect_equal( gelnet.lin.obj( w, b, X, z, 0.1, 0.1, a, d, P, m ), matrix(10.09573), tol=1e-5 )
 })
+
