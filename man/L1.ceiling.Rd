@@ -37,4 +37,3 @@ The cyclic coordinate descent updates the model weight \eqn{w_k} using a soft th
 value of the first argument falls below \eqn{\lambda_1 d_k}. From here, it is straightforward to compute
 the smallest value of \eqn{\lambda_1}, such that all weights are clipped to zero.
 }
-

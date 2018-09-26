@@ -64,4 +64,3 @@ weights are just barely zero). The L2 grid values are on a logarithmic scale cen
 \seealso{
 \code{\link{gelnet}}
 }
-

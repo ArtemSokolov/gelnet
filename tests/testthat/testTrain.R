@@ -1,14 +1,4 @@
-## Given a linear model, perturbs its i^th coefficient by delta
-## model - the model to perturb
-## i - index of the coefficient to modify (use 0 for the bias term)
-## delta - perturbation value
-perturb.gelnet <- function( model, i, delta )
-{
-    res <- model
-    if( i == 0 ) res$b <- res$b + delta
-    else res$w[i] <- res$w[i] + delta
-    res
-}
+context( "Model training" )
 
 ## Ensures that training found the optimum by looking in the immediate
 ##  neighborhood of the solution model

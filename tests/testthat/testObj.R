@@ -1,3 +1,5 @@
+context("Objective functions")
+
 test_that( "linear objective", {
     ## Preset dimensionality
     n <- 20

@@ -46,4 +46,3 @@ per-class estimates.
 \seealso{
 \code{\link{gelnet}}
 }
-

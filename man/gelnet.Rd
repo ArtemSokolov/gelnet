@@ -77,4 +77,3 @@ The training itself is performed through cyclical coordinate descent, and the op
 \seealso{
 \code{\link{gelnet.lin.obj}}, \code{\link{gelnet.logreg.obj}}, \code{\link{gelnet.oneclass.obj}}
 }
-

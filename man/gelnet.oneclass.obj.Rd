@@ -39,4 +39,3 @@ Computes the objective function value according to
 \seealso{
 \code{\link{gelnet}}
 }
-

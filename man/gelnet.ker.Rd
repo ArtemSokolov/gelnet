@@ -67,4 +67,3 @@ In all cases, \eqn{w = \sum_i v_i \phi(x_i)} and the method solves for \eqn{v_i}
 \seealso{
 \code{\link{gelnet}}
 }
-

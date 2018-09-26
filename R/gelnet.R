@@ -1,74 +1,6 @@
-## gelnet.R - Generalized Elastic Nets
+## Generalized Elastic Nets
 ##
 ## by Artem Sokolov
-
-#' Generate a graph Laplacian
-#'
-#' Generates a graph Laplacian from the graph adjacency matrix.
-#'
-#' A graph Laplacian is defined as:
-#' \eqn{ l_{i,j} = deg( v_i ) }, if \eqn{ i = j };
-#' \eqn{ l_{i,j} = -1 }, if \eqn{ i \neq j } and \eqn{v_i} is adjacent to \eqn{v_j};
-#' and \eqn{ l_{i,j} = 0 }, otherwise
-#'
-#' @param A n-by-n adjacency matrix for a graph with n nodes
-#' @return The n-by-n Laplacian matrix of the graph
-#' @seealso \code{\link{adj2nlapl}}
-#' @export
-adj2lapl <- function( A )
-  {
-    n <- nrow(A)
-    stopifnot( ncol(A) == n )
-    
-    ## Compute the off-diagonal entries
-    L <- -A
-    diag(L) <- 0
-
-    ## Compute the diagonal entries
-    ## Degree of a node: sum of weights on the edges
-    s <- apply( L, 2, sum )
-    diag(L) <- -s	## Negative because L == -A
-    L
-  }
-
-#' Generate a normalized graph Laplacian
-#'
-#' Generates a normalized graph Laplacian from the graph adjacency matrix.
-#'
-#' A normalized graph Laplacian is defined as:
-#' \eqn{ l_{i,j} = 1 }, if \eqn{ i = j };
-#' \eqn{ l_{i,j} = - 1 / \sqrt{ deg(v_i) deg(v_j) } }, if \eqn{ i \neq j } and \eqn{v_i} is adjacent to \eqn{v_j};
-#' and \eqn{ l_{i,j} = 0 }, otherwise
-#'
-#' @param A n-by-n adjacency matrix for a graph with n nodes
-#' @return The n-by-n Laplacian matrix of the graph
-#' @seealso \code{\link{adj2nlapl}}
-#' @export
-adj2nlapl <- function(A)
-  {
-    n <- nrow(A)
-    stopifnot( ncol(A) == n )
-
-    ## Zero out the diagonal
-    diag(A) <- 0
-    
-    ## Degree of a node: sum of weights on the edges
-    d <- 1 / apply( A, 2, sum )
-    d <- sqrt(d)
-
-    ## Account for "free-floating" nodes
-    j <- which( is.infinite(d) )
-    d[j] <- 0
-
-    ## Compute the non-normalized Laplacian
-    L <- adj2lapl( A )
-
-    ## Normalize
-    res <- t( L*d ) * d
-    rownames(res) <- rownames(A)
-    colnames(res) <- rownames(res)
-    res
-  }
 
 #' Linear regression objective function value
 #'
@@ -150,7 +82,7 @@ gelnet.logreg.obj <- function( w, b, X, y, l1, l2, d = rep(1,ncol(X)),
       LL <- (mean( v[y==0] ) + mean( v[y==1] )) / 2
     else
       LL <- mean( v )
-    
+
     R1 + R2 - LL
   }
 
@@ -219,7 +151,7 @@ L1.ceiling <- function( X, y, a = rep(1,nrow(X)), d = rep(1,ncol(X)),
         ## Binary model
         ## Convert the labels to {0,1}
         y <- as.integer( y == levels(y)[1] )
-        
+
         a <- rep( 0.25, nrow(X) )
         if( balanced )
           {
@@ -295,7 +227,7 @@ gelnet <- function( X, y, l1, l2, nFeats=NULL, a=rep(1,n), d=rep(1,p), P=diag(p)
   {
     n <- nrow(X)
     p <- ncol(X)
-    
+
     ## Determine the problem type
     if( is.null(y) )
       {
@@ -325,7 +257,7 @@ gelnet <- function( X, y, l1, l2, nFeats=NULL, a=rep(1,n), d=rep(1,p), P=diag(p)
     if( !is.null(nFeats) )
       {
         L1s <- L1.ceiling( X, y, a, d, P, m, l2, balanced )
-        return( gelnet.L1bin( f.gel, nFeats, L1s ) )        
+        return( gelnet.L1bin( f.gel, nFeats, L1s ) )
       }
     else
       { return( f.gel(l1) ) }
@@ -444,7 +376,7 @@ gelnet.cv <- function( X, y, nL1, nL2, nFolds=5, a=rep(1,n), d=rep(1,p), P=diag(
   {
     n <- nrow(X)
     p <- ncol(X)
-    
+
     ## One-class
     if( is.null(y) )
       {
@@ -500,7 +432,7 @@ gelnet.cv <- function( X, y, nL1, nL2, nFolds=5, a=rep(1,n), d=rep(1,p), P=diag(
             s <- drop( X.te %*% mm$w + mm$b )
             -sqrt( mean( (s - y.te)^2 ) )
           }
-      }    
+      }
     else
       { stop( "Unknown label type\ny must be a numeric vector, a 2-level factor or NULL" ) }
 
@@ -529,14 +461,14 @@ gelnet.cv <- function( X, y, nL1, nL2, nFolds=5, a=rep(1,n), d=rep(1,p), P=diag(
                 cat( "===================================================\n" )
                 cat( "Evaluating the choice of L2 =", l2, "; L1 =", l1, "\n" )
               }
-            
+
             ## Traverse the folds
             res <- rep( 0, nFolds )
             for( k in 1:nFolds )
               {
                 if( !silent )
                   cat( "== Fold", k, "==\n" )
-                
+
                 ## Isolate the training and test data
                 j.te <- which( vfa == k )
                 j.tr <- which( vfa != k )
@@ -572,7 +504,7 @@ gelnet.cv <- function( X, y, nL1, nL2, nFolds=5, a=rep(1,n), d=rep(1,p), P=diag(
 #'
 #' The method operates through cyclical coordinate descent.
 #' The optimization is terminated after the desired tolerance is achieved, or after a maximum number of iterations.
-#' 
+#'
 #' @param X n-by-p matrix of n samples in p dimensions
 #' @param y n-by-1 vector of response values
 #' @param l1 coefficient for the L1-norm penalty
@@ -700,7 +632,7 @@ gelnet.logreg <- function( X, y, l1, l2, d = rep(1,p), P = diag(p), m = rep(0,p)
     if( !silent )
       cat( "Treating", levels(y)[1], "as the positive class\n" )
     y <- as.integer( y == levels(y)[1] )
-    
+
     ## Set the initial parameter estimates
     S <- X %*% w.init + b.init
     Pw <- P %*% (w.init - m)
@@ -714,7 +646,7 @@ gelnet.logreg <- function( X, y, l1, l2, d = rep(1,p), P = diag(p), m = rep(0,p)
 
     res <- res[c("w","b")]
     names( res$w ) <- colnames(X)
-    
+
     res
   }
 
@@ -801,7 +733,7 @@ gelnet.oneclass <- function( X, l1, l2, d = rep(1,p), P = diag(p), m = rep(0,p),
         if( abs(f - fprev) / abs(fprev) < eps ) break
         else fprev <- f
       }
-    
+
     list( w = w )
   }
 
@@ -816,7 +748,7 @@ gelnet.oneclass <- function( X, l1, l2, d = rep(1,p), P = diag(p), m = rep(0,p),
 #' than the requested \code{nF} and adjusts the value of the L1 penalty term accordingly.
 #' For linear regression problems, it is recommended to initialize \code{l1s} to the output
 #' of \code{L1.ceiling}.
-#' 
+#'
 #' @param f.gelnet a function that accepts one parameter: L1 penalty value,
 #'    and returns a typical GELnets model (list with w and b as its entries)
 #' @param nF the desired number of non-zero features
@@ -899,7 +831,7 @@ gelnet.krr <- function( K, y, lambda, a, fix.bias=FALSE )
         ## Set up kernalization of the bias term
         K1 <- rbind( K, 1 )
         K0 <- cbind( rbind( K, 0 ), 0 )
-        
+
         ## Solve the optimization problem in closed form
         m <- solve( K1 %*% A %*% t(K1) + lambda * n * K0, K1 %*% A %*% y )
 
@@ -916,7 +848,7 @@ gelnet.krr <- function( K, y, lambda, a, fix.bias=FALSE )
 #' of the log-likelihood loss function and then calling the kernel ridge regression routine
 #' to solve those approximations. The least squares approximations are obtained via the Taylor series
 #' expansion about the current parameter estimates.
-#' 
+#'
 #' @param K n-by-n matrix of pairwise kernel values over a set of n samples
 #' @param y n-by-1 vector of binary response labels
 #' @param lambda scalar, regularization parameter
@@ -945,7 +877,7 @@ gelnet.klr <- function( K, y, lambda, max.iter = 100, eps = 1e-5,
     if( !silent )
       cat( "Treating", levels(y)[1], "as the positive class\n" )
     y <- as.integer( y == levels(y)[1] )
-    
+
     ## Objective function to minimize
     fobj <- function( v, b )
       {
@@ -969,7 +901,7 @@ gelnet.klr <- function( K, y, lambda, max.iter = 100, eps = 1e-5,
             cat( "Iteration", iter, ": " )
             cat( "f =", fprev, "\n" )
           }
-        
+
         ## Compute the current fit
         s <- drop(K %*% v + b)
         pr <- 1 / (1 + exp(-s))
@@ -992,7 +924,7 @@ gelnet.klr <- function( K, y, lambda, max.iter = 100, eps = 1e-5,
             a[jpos] <- a[jpos] * length(y) / ( length(jpos)*2 )
             a[jneg] <- a[jneg] * length(y) / ( length(jneg)*2 )
           }
-        
+
         ## Run the coordinate descent for the resulting regression problem
         m <- gelnet.krr( K, z, lambda, a )
         v <- m$v
@@ -1016,7 +948,7 @@ gelnet.klr <- function( K, y, lambda, max.iter = 100, eps = 1e-5,
 #' to solve those approximations. The least squares approximations are obtained via the Taylor series
 #' expansion about the current parameter estimates.
 #'
-#' 
+#'
 #' @param K n-by-n matrix of pairwise kernel values over a set of n samples
 #' @param lambda scalar, regularization parameter
 #' @param max.iter maximum number of iterations
