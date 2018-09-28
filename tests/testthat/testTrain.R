@@ -94,5 +94,15 @@ test_that( "linear training", {
     ## Verify optimality of each model w.r.t. its obj. fun.
     purrr::map2( mm, ff, expect_optimal )
     expect_relopt( mm, ff )
+
+    ## Test bias fixture
+    mfb <- do.call( gelnet.lin, c(params[[4]], list(silent=TRUE, fix.bias=TRUE)) )
+    expect_equal( mfb$b, with(params[[4]], sum(a*z)/sum(a)) )
+    expect_lt( ff[[4]](mm[[4]]), ff[[4]](mfb) )
+
+    ## Test non-negativity
+    mnn <- do.call( gelnet.lin, c(params[[4]], list(silent=TRUE, nonneg=TRUE)) )
+    purrr::map( mnn$w, expect_gte, 0 )
+    expect_lt( ff[[4]](mm[[4]]), ff[[4]](mnn) )
 })
 
