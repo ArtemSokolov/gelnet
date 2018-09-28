@@ -29,3 +29,29 @@ test_that( "linear objective", {
     expect_equal( gelnet.lin.obj( w, b, X, z, 0.1, 0.1, a, d, P, m ), 10.09573, tol=1e-5 )
 })
 
+test_that( "Logistic regression objective", {
+    ## Preset dimensionality
+    n <- 20
+    p <- 50
+
+    ## Generate random model weights, bias and random data
+    set.seed(100)
+    w <- rnorm( p )
+    b <- rnorm( 1 )
+    X <- matrix( rnorm(n*p), n, p )
+    y <- sample( c(0,1), n, replace=TRUE )
+
+    ## Generate random sample and feature weights, feature-feature
+    ##  penalties and translation coeffs
+    d <- runif( p )
+    A <- matrix( rnorm(p*p), p, p )
+    P <- t(A) %*% A / p
+    m <- rnorm(p, sd= 0.1)
+
+    ## Evaluate increasingly complex models
+    expect_equal( gelnet.logreg.obj( w, b, X, y, 0, 0.01 ), 1.409101, tol=1e-5 )
+    expect_equal( gelnet.logreg.obj( w, b, X, y, 0.1, 0.1 ), 5.979731, tol=1e-5 )
+    expect_equal( gelnet.logreg.obj( w, b, X, y, 0.1, 0.1, d ), 4.673295, tol=1e-5 )
+    expect_equal( gelnet.logreg.obj( w, b, X, y, 0.1, 0.1, d, P ), 4.952671, tol=1e-5 )
+    expect_equal( gelnet.logreg.obj( w, b, X, y, 0.1, 0.1, d, P, m ), 4.960332, tol=1e-5 )
+})

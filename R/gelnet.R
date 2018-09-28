@@ -69,7 +69,7 @@ gelnet.lin.obj <- function( w, b, X, z, l1, l2, a = rep(1,nrow(X)),
 #' @export
 gelnet.logreg.obj <- function( w, b, X, y, l1, l2, d = rep(1,ncol(X)),
                               P = diag(ncol(X)), m = rep(0,ncol(X)), balanced = FALSE )
-  {
+{
     ## Compute the regularization terms
     stopifnot( sort(unique(y)) == c(0,1) )
     s <- X %*% w + b
@@ -79,12 +79,12 @@ gelnet.logreg.obj <- function( w, b, X, y, l1, l2, d = rep(1,ncol(X)),
     ## Compute log-likelihood
     v <- y * s - log(1+exp(s))
     if( balanced == TRUE )
-      LL <- (mean( v[y==0] ) + mean( v[y==1] )) / 2
+        LL <- (mean( v[y==0] ) + mean( v[y==1] )) / 2
     else
-      LL <- mean( v )
+        LL <- mean( v )
 
-    R1 + R2 - LL
-  }
+    drop(R1 + R2 - LL)
+}
 
 #' One-class regression objective function value
 #'
@@ -228,37 +228,53 @@ gelnet <- function( X, y, l1, l2, nFeats=NULL, a=rep(1,n), d=rep(1,p), P=diag(p)
     n <- nrow(X)
     p <- ncol(X)
 
-    ## Determine the problem type
+    ## One-class
     if( is.null(y) )
-      {
+    {
         if( !silent ) cat( "Training a one-class model\n" )
-        f.gel <- function(L1) {gelnet.oneclass( X, L1, l2, d, P, m, max.iter, eps, w.init, silent, nonneg )}
-      }
+        f.gel <- function(L1)
+        {gelnet.oneclass( X, L1, l2, d, P, m, max.iter, eps, w.init, silent, nonneg )}
+    }
+
+    ## Binary classification
     else if( is.factor(y) )
       {
-        if( nlevels(y) == 1 )
-          stop( "All labels are identical\nConsider training a one-class model instead" )
-        if( nlevels(y) > 2 )
-          stop( "Labels belong to a multiclass task\nConsider training a set of one-vs-one or one-vs-rest models" )
-        if( !silent ) cat( "Training a logistic regression model\n" )
-        if( is.null(b.init) ) b.init <- 0
-        f.gel <- function(L1) {gelnet.logreg( X, y, L1, l2, d, P, m, max.iter, eps, w.init, b.init, silent, balanced, nonneg )}
+          if( nlevels(y) == 1 )
+              stop( "All labels are identical\nConsider training a one-class model instead" )
+          if( nlevels(y) > 2 )
+              stop( "Labels belong to a multiclass task\nConsider training a set of one-vs-one or one-vs-rest models" )
+          if( !silent ) cat( "Training a logistic regression model\n" )
+          if( is.null(b.init) ) b.init <- 0
+
+          ## Convert the labels to {0,1}
+          y <- factor(y)
+          if( !silent )
+              cat( "Treating", levels(y)[1], "as the positive class\n" )
+          y <- as.integer( y == levels(y)[1] )
+
+          f.gel <- function(L1)
+          {gelnet.logreg( X, y, L1, l2, d, P, m, max.iter, eps,
+                         w.init, b.init, silent, balanced, nonneg )}
       }
+
+    ## Regression
     else if( is.numeric(y) )
       {
-        if( !silent ) cat( "Training a linear regression model\n" )
-        if( is.null(b.init) ) b.init <- sum(a*y) / sum(a)
-        f.gel <- function(L1) {gelnet.lin( X, y, L1, l2, a, d, P, m, max.iter, eps, w.init, b.init, fix.bias, silent, nonneg )}
+          if( !silent ) cat( "Training a linear regression model\n" )
+          if( is.null(b.init) ) b.init <- sum(a*y) / sum(a)
+          f.gel <- function(L1)
+          {gelnet.lin( X, y, L1, l2, a, d, P, m, max.iter, eps,
+                      w.init, b.init, fix.bias, silent, nonneg )}
       }
     else
       { stop( "Unknown label type\ny must be a numeric vector, a 2-level factor or NULL" ) }
 
     ## Train a model with the required number of features (if requested)
     if( !is.null(nFeats) )
-      {
+    {
         L1s <- L1.ceiling( X, y, a, d, P, m, l2, balanced )
         return( gelnet.L1bin( f.gel, nFeats, L1s ) )
-      }
+    }
     else
       { return( f.gel(l1) ) }
   }
@@ -581,7 +597,7 @@ gelnet.lin <- function( X, z, l1, l2, a = rep(1,n), d = rep(1,p), P = diag(p),
 #' expansion about the current parameter estimates.
 #'
 #' @param X n-by-p matrix of n samples in p dimensions
-#' @param y n-by-1 vector of binary response labels
+#' @param y n-by-1 vector of binary response labels (must be in {0,1})
 #' @param l1 coefficient for the L1-norm penalty
 #' @param l2 coefficient for the L2-norm penalty
 #' @param d p-by-1 vector of feature weights
@@ -610,7 +626,7 @@ gelnet.logreg <- function( X, y, l1, l2, d = rep(1,p), P = diag(p), m = rep(0,p)
     p <- ncol(X)
 
     ## Verify argument dimensionality
-    stopifnot( length( unique(y) ) == 2 )
+    stopifnot( sort(unique(y)) == c(0,1) )
     stopifnot( length(y) == n )
     stopifnot( length(d) == p )
     stopifnot( all( dim(P) == c(p,p) ) )
@@ -626,12 +642,6 @@ gelnet.logreg <- function( X, y, l1, l2, d = rep(1,p), P = diag(p), m = rep(0,p)
         stopifnot( all( colnames(X) == rownames(P) ) )
         stopifnot( all( colnames(X) == colnames(P) ) )
       }
-
-    ## Convert the labels to {0,1}
-    y <- factor(y)
-    if( !silent )
-      cat( "Treating", levels(y)[1], "as the positive class\n" )
-    y <- as.integer( y == levels(y)[1] )
 
     ## Set the initial parameter estimates
     S <- X %*% w.init + b.init
