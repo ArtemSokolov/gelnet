@@ -22,10 +22,10 @@ test_that( "linear objective", {
     m <- rnorm(p, sd= 0.1)
 
     ## Evaluate increasingly complex models
-    expect_equal( gelnet.lin.obj( w, b, X, z, 0, 0.1 ), matrix(15.81988), tol=1e-5 )
-    expect_equal( gelnet.lin.obj( w, b, X, z, 0.1, 0.1 ), matrix(18.8965), tol=1e-5 )
-    expect_equal( gelnet.lin.obj( w, b, X, z, 0.1, 0.1, a, d ), matrix(9.982413), tol=1e-5 )
-    expect_equal( gelnet.lin.obj( w, b, X, z, 0.1, 0.1, a, d, P ), matrix(10.11774), tol=1e-5 )
-    expect_equal( gelnet.lin.obj( w, b, X, z, 0.1, 0.1, a, d, P, m ), matrix(10.09573), tol=1e-5 )
+    expect_equal( gelnet.lin.obj( w, b, X, z, 0, 0.1 ), 15.81988, tol=1e-5 )
+    expect_equal( gelnet.lin.obj( w, b, X, z, 0.1, 0.1 ), 18.8965, tol=1e-5 )
+    expect_equal( gelnet.lin.obj( w, b, X, z, 0.1, 0.1, a, d ), 9.982413, tol=1e-5 )
+    expect_equal( gelnet.lin.obj( w, b, X, z, 0.1, 0.1, a, d, P ), 10.11774, tol=1e-5 )
+    expect_equal( gelnet.lin.obj( w, b, X, z, 0.1, 0.1, a, d, P, m ), 10.09573, tol=1e-5 )
 })
 

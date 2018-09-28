@@ -37,7 +37,7 @@ gelnet.lin.obj <- function( w, b, X, z, l1, l2, a = rep(1,nrow(X)),
     R1 <- l1 * t(d) %*% abs(w)
     R2 <- l2 * t(w-m) %*% P %*% (w-m) / 2
 
-    L + R1 + R2
+    drop(L + R1 + R2)
   }
 
 #' Logistic regression objective function value
@@ -506,7 +506,7 @@ gelnet.cv <- function( X, y, nL1, nL2, nFolds=5, a=rep(1,n), d=rep(1,p), P=diag(
 #' The optimization is terminated after the desired tolerance is achieved, or after a maximum number of iterations.
 #'
 #' @param X n-by-p matrix of n samples in p dimensions
-#' @param y n-by-1 vector of response values
+#' @param z n-by-1 vector of response values
 #' @param l1 coefficient for the L1-norm penalty
 #' @param l2 coefficient for the L2-norm penalty
 #' @param a n-by-1 vector of sample weights
@@ -527,15 +527,15 @@ gelnet.cv <- function( X, y, nL1, nL2, nFolds=5, a=rep(1,n), d=rep(1,p), P=diag(
 #' }
 #' @useDynLib gelnet gelnet_lin_opt
 #' @noRd
-gelnet.lin <- function( X, y, l1, l2, a = rep(1,n), d = rep(1,p), P = diag(p),
+gelnet.lin <- function( X, z, l1, l2, a = rep(1,n), d = rep(1,p), P = diag(p),
                        m=rep(0,p), max.iter = 100, eps = 1e-5, w.init = rep(0,p),
-                       b.init = sum(a*y)/sum(a), fix.bias=FALSE, silent=FALSE, nonneg=FALSE )
+                       b.init = sum(a*z)/sum(a), fix.bias=FALSE, silent=FALSE, nonneg=FALSE )
   {
     n <- nrow(X)
     p <- ncol(X)
 
     ## Verify argument dimensionality
-    stopifnot( length(y) == n )
+    stopifnot( length(z) == n )
     stopifnot( length(a) == n )
     stopifnot( length(d) == p )
     stopifnot( all( dim(P) == c(p,p) ) )
@@ -559,7 +559,7 @@ gelnet.lin <- function( X, y, l1, l2, a = rep(1,n), d = rep(1,p), P = diag(p),
 
     ## Call the C routine
     res <- .C( "gelnet_lin_opt",
-              as.double(X), as.double(y), as.double(a), as.double(d),
+              as.double(X), as.double(z), as.double(a), as.double(d),
               as.double(P), as.double(m), as.double(l1), as.double(l2),
               as.double(S), as.double(Pw), as.integer(n), as.integer(p),
               as.integer(max.iter), as.double(eps), as.integer(fix.bias),
