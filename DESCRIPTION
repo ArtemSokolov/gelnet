@@ -17,3 +17,5 @@ Packaged: 2016-04-04 23:16:50 UTC; sokolov
 NeedsCompilation: yes
 Repository: CRAN
 Date/Publication: 2016-04-05 08:14:29
+LinkingTo: Rcpp
+Imports: Rcpp
