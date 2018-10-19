@@ -37,20 +37,30 @@ double rcpp_gelnet_lin_obj( arma::vec w, double b, arma::mat X,
   // Loss
   arma::vec err = z - (X*w + b);
   err = err % err;
-  if( a.isNotNull() ) {err = err % as<arma::vec>(a);}
+  if( a.isNotNull() ) err = err % as<arma::vec>(a);
   double L = mean(err) / 2.0;
 
   // L1-norm penalty
   arma::vec w1 = abs(w);
-  if( d.isNotNull() ) {w1 = w1 % as<arma::vec>(d);}
+  if( d.isNotNull() ) w1 = w1 % as<arma::vec>(d);
   double R1 = l1 * sum(w1);
 
   // L2-norm penalty
   arma::vec w2 = w;
-  if( m.isNotNull() ) {w2 = w2 - as<arma::vec>(m);}
+  if( m.isNotNull() ) w2 = w2 - as<arma::vec>(m);
   arma::mat w2t = w2.t();
-  if( P.isNotNull() ) {w2t = w2t * as<arma::mat>(P);}
+  if( P.isNotNull() ) w2t = w2t * as<arma::mat>(P);
   double R2 = l2 * arma::as_scalar(w2t * w2) / 2.0;
 
   return L + R1 + R2;
 }
+
+// Soft threshold
+// Not exported
+double sthresh( double x, double a )
+{
+  if( fabs(x) < a ) return 0;
+  else if( x < 0 ) return (x + a);
+  else return (x - a);
+}
+

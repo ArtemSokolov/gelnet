@@ -4,8 +4,8 @@
 \alias{gelnet.oneclass.obj}
 \title{One-class regression objective function value}
 \usage{
-gelnet.oneclass.obj(w, X, l1, l2, d = rep(1, ncol(X)), P = diag(ncol(X)),
-  m = rep(0, ncol(X)))
+gelnet.oneclass.obj(w, X, l1, l2, d = rep(1, ncol(X)),
+  P = diag(ncol(X)), m = rep(0, ncol(X)))
 }
 \arguments{
 \item{w}{p-by-1 vector of model weights}
