@@ -7,16 +7,22 @@
 using namespace Rcpp;
 
 // rcpp_gelnet_lin_obj
-double rcpp_gelnet_lin_obj(arma::colvec w, double b, arma::mat X, Nullable<NumericVector> a);
-RcppExport SEXP _gelnet_rcpp_gelnet_lin_obj(SEXP wSEXP, SEXP bSEXP, SEXP XSEXP, SEXP aSEXP) {
+double rcpp_gelnet_lin_obj(arma::vec w, double b, arma::mat X, arma::vec z, double l1, double l2, Nullable<NumericVector> a, Nullable<NumericVector> d, Nullable<NumericMatrix> P, Nullable<NumericVector> m);
+RcppExport SEXP _gelnet_rcpp_gelnet_lin_obj(SEXP wSEXP, SEXP bSEXP, SEXP XSEXP, SEXP zSEXP, SEXP l1SEXP, SEXP l2SEXP, SEXP aSEXP, SEXP dSEXP, SEXP PSEXP, SEXP mSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
-    Rcpp::traits::input_parameter< arma::colvec >::type w(wSEXP);
+    Rcpp::traits::input_parameter< arma::vec >::type w(wSEXP);
     Rcpp::traits::input_parameter< double >::type b(bSEXP);
     Rcpp::traits::input_parameter< arma::mat >::type X(XSEXP);
+    Rcpp::traits::input_parameter< arma::vec >::type z(zSEXP);
+    Rcpp::traits::input_parameter< double >::type l1(l1SEXP);
+    Rcpp::traits::input_parameter< double >::type l2(l2SEXP);
     Rcpp::traits::input_parameter< Nullable<NumericVector> >::type a(aSEXP);
-    rcpp_result_gen = Rcpp::wrap(rcpp_gelnet_lin_obj(w, b, X, a));
+    Rcpp::traits::input_parameter< Nullable<NumericVector> >::type d(dSEXP);
+    Rcpp::traits::input_parameter< Nullable<NumericMatrix> >::type P(PSEXP);
+    Rcpp::traits::input_parameter< Nullable<NumericVector> >::type m(mSEXP);
+    rcpp_result_gen = Rcpp::wrap(rcpp_gelnet_lin_obj(w, b, X, z, l1, l2, a, d, P, m));
     return rcpp_result_gen;
 END_RCPP
 }
@@ -25,7 +31,7 @@ RcppExport void gelnet_lin_opt(void *, void *, void *, void *, void *, void *, v
 RcppExport void gelnet_logreg_opt(void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *);
 
 static const R_CallMethodDef CallEntries[] = {
-    {"_gelnet_rcpp_gelnet_lin_obj", (DL_FUNC) &_gelnet_rcpp_gelnet_lin_obj, 4},
+    {"_gelnet_rcpp_gelnet_lin_obj", (DL_FUNC) &_gelnet_rcpp_gelnet_lin_obj, 10},
     {"gelnet_lin_opt",    (DL_FUNC) &gelnet_lin_opt,    19},
     {"gelnet_logreg_opt", (DL_FUNC) &gelnet_logreg_opt, 18},
     {NULL, NULL, 0}

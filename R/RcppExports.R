@@ -23,7 +23,7 @@
 #' @param m p-by-1 vector of translation coefficients
 #' @return The objective function value.
 #' @export
-rcpp_gelnet_lin_obj <- function(w, b, X, a = NULL) {
-    .Call('_gelnet_rcpp_gelnet_lin_obj', PACKAGE = 'gelnet', w, b, X, a)
+rcpp_gelnet_lin_obj <- function(w, b, X, z, l1, l2, a = NULL, d = NULL, P = NULL, m = NULL) {
+    .Call('_gelnet_rcpp_gelnet_lin_obj', PACKAGE = 'gelnet', w, b, X, z, l1, l2, a, d, P, m)
 }
 
