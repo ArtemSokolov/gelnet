@@ -26,12 +26,39 @@ BEGIN_RCPP
     return rcpp_result_gen;
 END_RCPP
 }
+// rcpp_gelnet_lin_opt
+List rcpp_gelnet_lin_opt(arma::mat X, arma::vec z, double l1, double l2, int max_iter, double eps, bool fix_bias, bool silent, bool verbose, bool nonneg, Nullable<NumericVector> w_init, Nullable<double> b_init, Nullable<NumericVector> a, Nullable<NumericVector> d, Nullable<NumericMatrix> P, Nullable<NumericVector> m);
+RcppExport SEXP _gelnet_rcpp_gelnet_lin_opt(SEXP XSEXP, SEXP zSEXP, SEXP l1SEXP, SEXP l2SEXP, SEXP max_iterSEXP, SEXP epsSEXP, SEXP fix_biasSEXP, SEXP silentSEXP, SEXP verboseSEXP, SEXP nonnegSEXP, SEXP w_initSEXP, SEXP b_initSEXP, SEXP aSEXP, SEXP dSEXP, SEXP PSEXP, SEXP mSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< arma::mat >::type X(XSEXP);
+    Rcpp::traits::input_parameter< arma::vec >::type z(zSEXP);
+    Rcpp::traits::input_parameter< double >::type l1(l1SEXP);
+    Rcpp::traits::input_parameter< double >::type l2(l2SEXP);
+    Rcpp::traits::input_parameter< int >::type max_iter(max_iterSEXP);
+    Rcpp::traits::input_parameter< double >::type eps(epsSEXP);
+    Rcpp::traits::input_parameter< bool >::type fix_bias(fix_biasSEXP);
+    Rcpp::traits::input_parameter< bool >::type silent(silentSEXP);
+    Rcpp::traits::input_parameter< bool >::type verbose(verboseSEXP);
+    Rcpp::traits::input_parameter< bool >::type nonneg(nonnegSEXP);
+    Rcpp::traits::input_parameter< Nullable<NumericVector> >::type w_init(w_initSEXP);
+    Rcpp::traits::input_parameter< Nullable<double> >::type b_init(b_initSEXP);
+    Rcpp::traits::input_parameter< Nullable<NumericVector> >::type a(aSEXP);
+    Rcpp::traits::input_parameter< Nullable<NumericVector> >::type d(dSEXP);
+    Rcpp::traits::input_parameter< Nullable<NumericMatrix> >::type P(PSEXP);
+    Rcpp::traits::input_parameter< Nullable<NumericVector> >::type m(mSEXP);
+    rcpp_result_gen = Rcpp::wrap(rcpp_gelnet_lin_opt(X, z, l1, l2, max_iter, eps, fix_bias, silent, verbose, nonneg, w_init, b_init, a, d, P, m));
+    return rcpp_result_gen;
+END_RCPP
+}
 
 RcppExport void gelnet_lin_opt(void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *);
 RcppExport void gelnet_logreg_opt(void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *);
 
 static const R_CallMethodDef CallEntries[] = {
     {"_gelnet_rcpp_gelnet_lin_obj", (DL_FUNC) &_gelnet_rcpp_gelnet_lin_obj, 10},
+    {"_gelnet_rcpp_gelnet_lin_opt", (DL_FUNC) &_gelnet_rcpp_gelnet_lin_opt, 16},
     {"gelnet_lin_opt",    (DL_FUNC) &gelnet_lin_opt,    19},
     {"gelnet_logreg_opt", (DL_FUNC) &gelnet_logreg_opt, 18},
     {NULL, NULL, 0}
