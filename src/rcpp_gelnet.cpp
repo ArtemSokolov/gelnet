@@ -105,7 +105,7 @@ double computeCoord( arma::mat X, arma::vec z, double l1, double l2,
   
   // Finalize the numerator
   double thresh = l1;
-  if( d.isNotNull() ) thresh *= as<arma::mat>(d)(j);
+  if( d.isNotNull() ) thresh *= as<arma::vec>(d)(j);
   double num = sthresh( num1 - num2, thresh );
 
   // Early stopping
@@ -180,7 +180,7 @@ List rcpp_gelnet_lin_opt( arma::mat X, arma::vec z, double l1, double l2,
 	  if( wj_diff != 0.0 )
 	    {
 	      s = s + X.col(j) * wj_diff;
-	      if( P.isNotNull() ) Pwm = Pwm + as<arma::vec>(P).col(j) * wj_diff;
+	      if( P.isNotNull() ) Pwm = Pwm + as<arma::mat>(P).col(j) * wj_diff;
 	      else Pwm(j) = Pwm(j) + wj_diff;
 	    }
 	}
@@ -194,7 +194,7 @@ List rcpp_gelnet_lin_opt( arma::mat X, arma::vec z, double l1, double l2,
 	  if( a.isNotNull() )
 	    {
 	      arma::vec a_ = as<arma::vec>(a);
-	      err = err * a_;
+	      err = err % a_;
 	      b_denom = sum(a_);
 	    }
 	  double b_num = sum( err );
