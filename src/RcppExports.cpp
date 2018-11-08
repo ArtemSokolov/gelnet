@@ -26,6 +26,26 @@ BEGIN_RCPP
     return rcpp_result_gen;
 END_RCPP
 }
+// rcpp_gelnet_logreg_obj
+arma::vec rcpp_gelnet_logreg_obj(arma::vec w, double b, arma::mat X, arma::Col<int> y, double l1, double l2, bool balanced, Nullable<NumericVector> d, Nullable<NumericMatrix> P, Nullable<NumericVector> m);
+RcppExport SEXP _gelnet_rcpp_gelnet_logreg_obj(SEXP wSEXP, SEXP bSEXP, SEXP XSEXP, SEXP ySEXP, SEXP l1SEXP, SEXP l2SEXP, SEXP balancedSEXP, SEXP dSEXP, SEXP PSEXP, SEXP mSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< arma::vec >::type w(wSEXP);
+    Rcpp::traits::input_parameter< double >::type b(bSEXP);
+    Rcpp::traits::input_parameter< arma::mat >::type X(XSEXP);
+    Rcpp::traits::input_parameter< arma::Col<int> >::type y(ySEXP);
+    Rcpp::traits::input_parameter< double >::type l1(l1SEXP);
+    Rcpp::traits::input_parameter< double >::type l2(l2SEXP);
+    Rcpp::traits::input_parameter< bool >::type balanced(balancedSEXP);
+    Rcpp::traits::input_parameter< Nullable<NumericVector> >::type d(dSEXP);
+    Rcpp::traits::input_parameter< Nullable<NumericMatrix> >::type P(PSEXP);
+    Rcpp::traits::input_parameter< Nullable<NumericVector> >::type m(mSEXP);
+    rcpp_result_gen = Rcpp::wrap(rcpp_gelnet_logreg_obj(w, b, X, y, l1, l2, balanced, d, P, m));
+    return rcpp_result_gen;
+END_RCPP
+}
 // rcpp_gelnet_lin_opt
 List rcpp_gelnet_lin_opt(arma::mat X, arma::vec z, double l1, double l2, int max_iter, double eps, bool fix_bias, bool silent, bool verbose, bool nonneg, Nullable<NumericVector> w_init, Nullable<double> b_init, Nullable<NumericVector> a, Nullable<NumericVector> d, Nullable<NumericMatrix> P, Nullable<NumericVector> m);
 RcppExport SEXP _gelnet_rcpp_gelnet_lin_opt(SEXP XSEXP, SEXP zSEXP, SEXP l1SEXP, SEXP l2SEXP, SEXP max_iterSEXP, SEXP epsSEXP, SEXP fix_biasSEXP, SEXP silentSEXP, SEXP verboseSEXP, SEXP nonnegSEXP, SEXP w_initSEXP, SEXP b_initSEXP, SEXP aSEXP, SEXP dSEXP, SEXP PSEXP, SEXP mSEXP) {
@@ -58,6 +78,7 @@ RcppExport void gelnet_logreg_opt(void *, void *, void *, void *, void *, void *
 
 static const R_CallMethodDef CallEntries[] = {
     {"_gelnet_rcpp_gelnet_lin_obj", (DL_FUNC) &_gelnet_rcpp_gelnet_lin_obj, 10},
+    {"_gelnet_rcpp_gelnet_logreg_obj", (DL_FUNC) &_gelnet_rcpp_gelnet_logreg_obj, 10},
     {"_gelnet_rcpp_gelnet_lin_opt", (DL_FUNC) &_gelnet_rcpp_gelnet_lin_opt, 16},
     {"gelnet_lin_opt",    (DL_FUNC) &gelnet_lin_opt,    19},
     {"gelnet_logreg_opt", (DL_FUNC) &gelnet_logreg_opt, 18},

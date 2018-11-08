@@ -1,4 +1,3 @@
-#define RCPP_ARMADILLO_RETURN_COLVEC_AS_VECTOR
 #include <RcppArmadillo.h>
 
 using namespace Rcpp;
@@ -69,6 +68,20 @@ double rcpp_gelnet_lin_obj( arma::vec w, double b, arma::mat X,
   return rcpp_gelnet_lin_obj_w( w, s, z, l1, l2, a, d, P, m );
 }
 
+//' Logistic regression objective function value
+// [[Rcpp::export]]
+arma::vec rcpp_gelnet_logreg_obj( arma::vec w, double b, arma::mat X, arma::Col<int> y,
+				  double l1, double l2, bool balanced,
+				  Nullable<NumericVector> d = R_NilValue,
+				  Nullable<NumericMatrix> P = R_NilValue,
+				  Nullable<NumericVector> m = R_NilValue )
+{
+  arma::vec s = (X*w + b);
+  arma::vec ls = exp(s);
+  ls.for_each( [](double& val) {val = std::log1p(val);} );
+  return ls;
+}
+
 // Soft threshold
 // Not exported
 double sthresh( double x, double a )
@@ -121,7 +134,7 @@ double computeCoord( arma::mat X, arma::vec z, double l1, double l2,
   return res;
 }
 
-// Optimizes the GELNET objective via coordinate descent
+// Optimizes the GELNET linear objective via coordinate descent
 // [[Rcpp::export]]
 List rcpp_gelnet_lin_opt( arma::mat X, arma::vec z, double l1, double l2,
 			  int max_iter = 100, double eps = 1e-5, bool fix_bias = false,
