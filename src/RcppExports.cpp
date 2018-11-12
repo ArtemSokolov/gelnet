@@ -73,15 +73,10 @@ BEGIN_RCPP
 END_RCPP
 }
 
-RcppExport void gelnet_lin_opt(void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *);
-RcppExport void gelnet_logreg_opt(void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *);
-
 static const R_CallMethodDef CallEntries[] = {
     {"_gelnet_rcpp_gelnet_lin_obj", (DL_FUNC) &_gelnet_rcpp_gelnet_lin_obj, 10},
     {"_gelnet_rcpp_gelnet_logreg_obj", (DL_FUNC) &_gelnet_rcpp_gelnet_logreg_obj, 10},
     {"_gelnet_rcpp_gelnet_lin_opt", (DL_FUNC) &_gelnet_rcpp_gelnet_lin_opt, 16},
-    {"gelnet_lin_opt",    (DL_FUNC) &gelnet_lin_opt,    19},
-    {"gelnet_logreg_opt", (DL_FUNC) &gelnet_logreg_opt, 18},
     {NULL, NULL, 0}
 };
 

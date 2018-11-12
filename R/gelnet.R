@@ -541,7 +541,6 @@ gelnet.cv <- function( X, y, nL1, nL2, nFolds=5, a=rep(1,n), d=rep(1,p), P=diag(
 #'   \item{w}{p-by-1 vector of p model weights}
 #'   \item{b}{scalar, bias term for the linear model}
 #' }
-#' @useDynLib gelnet gelnet_lin_opt
 #' @noRd
 gelnet.lin <- function( X, z, l1, l2, a = rep(1,n), d = rep(1,p), P = diag(p),
                        m=rep(0,p), max.iter = 100, eps = 1e-5, w.init = rep(0,p),
@@ -573,18 +572,7 @@ gelnet.lin <- function( X, z, l1, l2, a = rep(1,n), d = rep(1,p), P = diag(p),
     S <- X %*% w.init + b.init
     Pw <- P %*% (w.init - m)
 
-    ## Call the C routine
-    res <- .C( "gelnet_lin_opt",
-              as.double(X), as.double(z), as.double(a), as.double(d),
-              as.double(P), as.double(m), as.double(l1), as.double(l2),
-              as.double(S), as.double(Pw), as.integer(n), as.integer(p),
-              as.integer(max.iter), as.double(eps), as.integer(fix.bias),
-              w = as.double( w.init ), b = as.double(b.init), as.integer(silent), as.integer(nonneg) )
-
-    res <- res[c("w","b")]
-    names( res$w ) <- colnames(X)
-
-    res
+    NULL
   }
 
 #' GELnet for logistic regression
@@ -616,7 +604,6 @@ gelnet.lin <- function( X, z, l1, l2, a = rep(1,n), d = rep(1,p), P = diag(p),
 #'   \item{b}{scalar, bias term for the linear model}
 #' }
 #' @seealso \code{\link{gelnet.lin}}
-#' @useDynLib gelnet gelnet_logreg_opt
 #' @noRd
 gelnet.logreg <- function( X, y, l1, l2, d = rep(1,p), P = diag(p), m = rep(0,p),
                           max.iter = 100, eps = 1e-5, w.init = rep(0,p),
@@ -647,17 +634,7 @@ gelnet.logreg <- function( X, y, l1, l2, d = rep(1,p), P = diag(p), m = rep(0,p)
     S <- X %*% w.init + b.init
     Pw <- P %*% (w.init - m)
 
-    res <- .C( "gelnet_logreg_opt",
-              as.double(X), as.integer(y), as.double(d), as.double(P),
-              as.double(m), as.double(l1), as.double(l2),
-              as.double(S), as.double(Pw), as.integer(n), as.integer(p),
-              as.integer(max.iter), as.double(eps), w = as.double( w.init ),
-              b = as.double(b.init), as.integer(silent), as.integer(balanced), as.integer(nonneg) )
-
-    res <- res[c("w","b")]
-    names( res$w ) <- colnames(X)
-
-    res
+    NULL
   }
 
 #' GELnet for one-class regression
