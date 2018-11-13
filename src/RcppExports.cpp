@@ -27,7 +27,7 @@ BEGIN_RCPP
 END_RCPP
 }
 // rcpp_gelnet_logreg_obj
-arma::vec rcpp_gelnet_logreg_obj(arma::vec w, double b, arma::mat X, arma::Col<int> y, double l1, double l2, bool balanced, Nullable<NumericVector> d, Nullable<NumericMatrix> P, Nullable<NumericVector> m);
+double rcpp_gelnet_logreg_obj(arma::vec w, double b, arma::mat X, arma::Col<int> y, double l1, double l2, bool balanced, Nullable<NumericVector> d, Nullable<NumericMatrix> P, Nullable<NumericVector> m);
 RcppExport SEXP _gelnet_rcpp_gelnet_logreg_obj(SEXP wSEXP, SEXP bSEXP, SEXP XSEXP, SEXP ySEXP, SEXP l1SEXP, SEXP l2SEXP, SEXP balancedSEXP, SEXP dSEXP, SEXP PSEXP, SEXP mSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;

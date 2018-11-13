@@ -4,6 +4,29 @@ using namespace Rcpp;
 
 // [[Rcpp::depends(RcppArmadillo)]]
 
+// Computes the L1-norm penalty
+// Not exported
+double l1penalty( double l1, arma::vec w,
+		  Nullable<NumericVector> d = R_NilValue )
+{
+  arma::vec w1 = abs(w);
+  if( d.isNotNull() ) w1 = w1 % as<arma::vec>(d);
+  return l1 * sum(w1);
+}
+
+// Computes the L2-norm penalty
+// Not exported
+double l2penalty( double l2, arma::vec w,
+		  Nullable<NumericMatrix> P = R_NilValue,
+		  Nullable<NumericVector> m = R_NilValue )
+{
+  arma::vec w2 = w;
+  if( m.isNotNull() ) w2 = w2 - as<arma::vec>(m);
+  arma::mat w2t = w2.t();
+  if( P.isNotNull() ) w2t = w2t * as<arma::mat>(P);
+  return l2 * arma::as_scalar(w2t * w2) / 2.0;
+}
+
 // Worker for rcpp_gelnet_lin_obj() that take pre-computed fits
 // Not exported
 double rcpp_gelnet_lin_obj_w( arma::vec w, arma::vec s, arma::vec z,
@@ -19,17 +42,9 @@ double rcpp_gelnet_lin_obj_w( arma::vec w, arma::vec s, arma::vec z,
   if( a.isNotNull() ) err = err % as<arma::vec>(a);
   double L = mean(err) / 2.0;
 
-  // L1-norm penalty
-  arma::vec w1 = abs(w);
-  if( d.isNotNull() ) w1 = w1 % as<arma::vec>(d);
-  double R1 = l1 * sum(w1);
-
-  // L2-norm penalty
-  arma::vec w2 = w;
-  if( m.isNotNull() ) w2 = w2 - as<arma::vec>(m);
-  arma::mat w2t = w2.t();
-  if( P.isNotNull() ) w2t = w2t * as<arma::mat>(P);
-  double R2 = l2 * arma::as_scalar(w2t * w2) / 2.0;
+  // L1-norm and L2-norm penalties
+  double R1 = l1penalty( l1, w, d );
+  double R2 = l2penalty( l2, w, P, m );
 
   return L + R1 + R2;
 }
@@ -70,8 +85,8 @@ double rcpp_gelnet_lin_obj( arma::vec w, double b, arma::mat X,
 
 //' Logistic regression objective function value
 // [[Rcpp::export]]
-arma::vec rcpp_gelnet_logreg_obj( arma::vec w, double b, arma::mat X, arma::Col<int> y,
-				  double l1, double l2, bool balanced,
+double rcpp_gelnet_logreg_obj( arma::vec w, double b, arma::mat X, arma::Col<int> y,
+				  double l1, double l2, bool balanced = false,
 				  Nullable<NumericVector> d = R_NilValue,
 				  Nullable<NumericMatrix> P = R_NilValue,
 				  Nullable<NumericVector> m = R_NilValue )
@@ -89,16 +104,17 @@ arma::vec rcpp_gelnet_logreg_obj( arma::vec w, double b, arma::mat X, arma::Col<
   arma::vec lossn = y1 % ls;
 
   // Overall loss term
-  double loss = 0.0;
+  double L = 0.0;
   if( balanced )
-    loss = 0.5 * ( sum(lossp) / sum(y) + sum(lossn) / sum(y1) );
+    L = 0.5 * ( sum(lossp) / sum(y) + sum(lossn) / sum(y1) );
   else
-    loss = (sum(lossp) + sum(lossn)) / X.n_rows;
+    L = (sum(lossp) + sum(lossn)) / X.n_rows;
 
   // Regularization terms
-  
-  
-  return ls;
+  double R1 = l1penalty( l1, w, d );
+  double R2 = l2penalty( l2, w, P, m );
+
+  return L+R1+R2;
 }
 
 // Soft threshold
@@ -134,7 +150,7 @@ double computeCoord( arma::mat X, arma::vec z, double l1, double l2,
   arma::vec err_j = z - s + Xj;
   double num1 = arma::as_scalar(aX.t() * err_j) / n;
   double num2 = l2 * (Pwm(j) - w(j)*adj);
-  
+
   // Finalize the numerator
   double thresh = l1;
   if( d.isNotNull() ) thresh *= as<arma::vec>(d)(j);
@@ -168,7 +184,7 @@ List rcpp_gelnet_lin_opt( arma::mat X, arma::vec z, double l1, double l2,
   // Retrieve data dimensionality
   int n = X.n_rows;
   int p = X.n_cols;
-  
+
   // Initialize the model (using provided values if available)
   arma::vec w; double b;
   if( w_init.isNotNull() ) w = as<arma::vec>(w_init);
@@ -182,7 +198,7 @@ List rcpp_gelnet_lin_opt( arma::mat X, arma::vec z, double l1, double l2,
     }
     b = sum(num) / denom;
   }
-  
+
   // Compute the initial fits and objective function value
   arma::vec s = (X*w + b);
   double fprev = rcpp_gelnet_lin_obj_w( w, s, z, l1, l2, a, d, P, m );
@@ -250,7 +266,7 @@ List rcpp_gelnet_lin_opt( arma::mat X, arma::vec z, double l1, double l2,
   if( iter > max_iter ) --iter;    // Corner case: loop didn't end via break
   if( !silent )
     Rcout<<"Final value is "<<f<<" after iteration "<<iter<<std::endl;
-  
+
   return List::create( Named("w") = w, Named("b") = b );
 }
 

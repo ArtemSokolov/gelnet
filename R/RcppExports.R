@@ -28,7 +28,7 @@ rcpp_gelnet_lin_obj <- function(w, b, X, z, l1, l2, a = NULL, d = NULL, P = NULL
 }
 
 #' Logistic regression objective function value
-rcpp_gelnet_logreg_obj <- function(w, b, X, y, l1, l2, balanced, d = NULL, P = NULL, m = NULL) {
+rcpp_gelnet_logreg_obj <- function(w, b, X, y, l1, l2, balanced = FALSE, d = NULL, P = NULL, m = NULL) {
     .Call('_gelnet_rcpp_gelnet_logreg_obj', PACKAGE = 'gelnet', w, b, X, y, l1, l2, balanced, d, P, m)
 }
 
