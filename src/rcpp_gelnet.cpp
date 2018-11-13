@@ -76,9 +76,28 @@ arma::vec rcpp_gelnet_logreg_obj( arma::vec w, double b, arma::mat X, arma::Col<
 				  Nullable<NumericMatrix> P = R_NilValue,
 				  Nullable<NumericVector> m = R_NilValue )
 {
+  // Compute fits and inverse labels
+  arma::Col<int> y1 = 1 - y;
   arma::vec s = (X*w + b);
+
+  // Compute logit transforms for individual samples
   arma::vec ls = exp(s);
   ls.for_each( [](double& val) {val = std::log1p(val);} );
+
+  // Per-class loss terms
+  arma::vec lossp = y % (ls - s);
+  arma::vec lossn = y1 % ls;
+
+  // Overall loss term
+  double loss = 0.0;
+  if( balanced )
+    loss = 0.5 * ( sum(lossp) / sum(y) + sum(lossn) / sum(y1) );
+  else
+    loss = (sum(lossp) + sum(lossn)) / X.n_rows;
+
+  // Regularization terms
+  
+  
   return ls;
 }
 
