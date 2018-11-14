@@ -143,6 +143,9 @@ test_that( "Logistic regression training", {
     purrr::map2( mm, ff, expect_optimal )
     expect_relopt( mm, ff )
 
+    ## Balanced model should have bias term closer to 0
+    expect_lt( abs(mm[[5]]$b), abs(mm[[4]]$b) )
+
     ## Test non-negativity
     mnn <- do.call( rcpp_gelnet_logreg_opt, c(params[[5]], list(nonneg=TRUE, silent=TRUE)) )
     purrr::map( mnn$w, expect_gte, 0 )
