@@ -6,8 +6,8 @@
 \usage{
 gelnet(X, y, l1, l2, nFeats = NULL, a = rep(1, n), d = rep(1, p),
   P = diag(p), m = rep(0, p), max.iter = 100, eps = 1e-05,
-  w.init = rep(0, p), b.init = NULL, fix.bias = FALSE,
-  silent = FALSE, balanced = FALSE, nonneg = FALSE)
+  w.init = rep(0, p), b.init = NULL, fix.bias = FALSE, silent = FALSE,
+  balanced = FALSE, nonneg = FALSE)
 }
 \arguments{
 \item{X}{n-by-p matrix of n samples in p dimensions}

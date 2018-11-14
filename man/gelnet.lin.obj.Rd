@@ -4,8 +4,8 @@
 \alias{gelnet.lin.obj}
 \title{Linear regression objective function value}
 \usage{
-gelnet.lin.obj(w, b, X, z, l1, l2, a = rep(1, nrow(X)), d = rep(1,
-  ncol(X)), P = diag(ncol(X)), m = rep(0, ncol(X)))
+gelnet.lin.obj(w, b, X, z, l1, l2, a = rep(1, nrow(X)), d = rep(1, ncol(X)),
+  P = diag(ncol(X)), m = rep(0, ncol(X)))
 }
 \arguments{
 \item{w}{p-by-1 vector of model weights}

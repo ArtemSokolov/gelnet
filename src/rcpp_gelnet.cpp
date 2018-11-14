@@ -50,7 +50,7 @@ double rcpp_gelnet_lin_obj_w( arma::vec w, arma::vec s, arma::vec z,
   return L + R1 + R2;
 }
 
-// Worker for rcpp_gelnet_lin_obj() that take pre-computed fits
+// Worker for rcpp_gelnet_logreg_obj() that take pre-computed fits
 // Not exported
 double rcpp_gelnet_logreg_obj_w( arma::vec w, arma::vec s, arma::Col<int> y,
 				  double l1, double l2, bool balanced,
@@ -123,7 +123,7 @@ double rcpp_gelnet_lin_obj( arma::vec w, double b, arma::mat X,
 //'
 //' Evaluates the logistic regression objective function value for a given model.
 //' See details.
-//
+//'
 //' Computes the objective function value according to
 //' \deqn{ -\frac{1}{n} \sum_i y_i s_i - \log( 1 + \exp(s_i) ) + R(w) }
 //'  where
@@ -230,7 +230,8 @@ double computeCoord( arma::mat X, arma::vec z, double l1, double l2,
 //' @param w.init initial parameter estimate for the weights
 //' @param b.init initial parameter estimate for the bias term
 //' @param fix.bias set to TRUE to prevent the bias term from being updated (default: FALSE)
-//' @param silent set to TRUE to suppress run-time output to stdout (default: FALSE)
+//' @param silent set to TRUE to suppress run-time output; overwrites verbose (default: FALSE)
+//' @param verbose set to TRUE to see extra output; is overwritten by silent (default: FALSE)
 //' @param nonneg set to TRUE to enforce non-negativity constraints on the weights (default: FALSE )
 //' @return A list with two elements:
 //' \describe{
@@ -338,7 +339,36 @@ List rcpp_gelnet_lin_opt( arma::mat X, arma::vec z, double l1, double l2,
   return List::create( Named("w") = w, Named("b") = b );
 }
 
-// Optimizes logistic regression objective via coordinate descent
+//' GELnet for logistic regression
+//'
+//' Constructs a GELnet model for logistic regression using the Newton method.
+//'
+//' The method operates by constructing iteratively re-weighted least squares approximations
+//' of the log-likelihood loss function and then calling the linear regression routine
+//' to solve those approximations. The least squares approximations are obtained via the Taylor series
+//' expansion about the current parameter estimates.
+//'
+//' @param X n-by-p matrix of n samples in p dimensions
+//' @param y n-by-1 vector of binary response labels (must be in {0,1})
+//' @param l1 coefficient for the L1-norm penalty
+//' @param l2 coefficient for the L2-norm penalty
+//' @param d p-by-1 vector of feature weights
+//' @param P p-by-p feature association penalty matrix
+//' @param m p-by-1 vector of translation coefficients
+//' @param max.iter maximum number of iterations
+//' @param eps convergence precision
+//' @param w.init initial parameter estimate for the weights
+//' @param b.init initial parameter estimate for the bias term
+//' @param silent set to TRUE to suppress run-time output to stdout (default: FALSE)
+//' @param balanced boolean specifying whether the balanced model is being trained
+//' @param nonneg set to TRUE to enforce non-negativity constraints on the weights (default: FALSE )
+//' @return A list with two elements:
+//' \describe{
+//'   \item{w}{p-by-1 vector of p model weights}
+//'   \item{b}{scalar, bias term for the linear model}
+//' }
+//' @seealso \code{\link{gelnet.lin}}
+//' @export
 // [[Rcpp::export]]
 List rcpp_gelnet_logreg_opt( arma::mat X, arma::Col<int> y, double l1, double l2,
 			     int max_iter = 100, double eps = 1e-5,
