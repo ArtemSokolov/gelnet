@@ -49,6 +49,41 @@ double rcpp_gelnet_lin_obj_w( arma::vec w, arma::vec s, arma::vec z,
   return L + R1 + R2;
 }
 
+// Worker for rcpp_gelnet_lin_obj() that take pre-computed fits
+// Not exported
+double rcpp_gelnet_logreg_obj_w( arma::vec w, arma::vec s, arma::Col<int> y,
+				  double l1, double l2, bool balanced,
+				  Nullable<NumericVector> d = R_NilValue,
+				  Nullable<NumericMatrix> P = R_NilValue,
+				  Nullable<NumericVector> m = R_NilValue )
+{
+  // Compute fits and inverse labels
+  arma::Col<int> y1 = 1 - y;
+
+  // Compute logit transforms for individual samples
+  arma::vec ls = exp(s);
+  for( arma::uword i = 0; i < ls.n_elem; ++i )
+    ls(i) = std::log1p(ls(i));
+
+  // Per-class loss terms
+  arma::vec lossp = y % (ls - s);
+  arma::vec lossn = y1 % ls;
+
+  // Overall loss term
+  double L = 0.0;
+  if( balanced )
+    L = 0.5 * ( sum(lossp) / sum(y) + sum(lossn) / sum(y1) );
+  else
+    L = (sum(lossp) + sum(lossn)) / y.n_elem;
+
+  // Regularization terms
+  double R1 = l1penalty( l1, w, d );
+  double R2 = l2penalty( l2, w, P, m );
+
+  return L+R1+R2;
+}
+
+
 //' Linear regression objective function value
 //'
 //' Evaluates the linear regression objective function value for a given model.
@@ -84,6 +119,32 @@ double rcpp_gelnet_lin_obj( arma::vec w, double b, arma::mat X,
 }
 
 //' Logistic regression objective function value
+//'
+//' Evaluates the logistic regression objective function value for a given model.
+//' See details.
+//
+//' Computes the objective function value according to
+//' \deqn{ -\frac{1}{n} \sum_i y_i s_i - \log( 1 + \exp(s_i) ) + R(w) }
+//'  where
+//' \deqn{ s_i = w^T x_i + b }
+//' \deqn{ R(w) = \lambda_1 \sum_j d_j |w_j| + \frac{\lambda_2}{2} (w-m)^T P (w-m) }
+//' When balanced is TRUE, the loss average over the entire data is replaced with averaging
+//' over each class separately. The total loss is then computes as the mean over those
+//' per-class estimates.
+//'
+//' @param w p-by-1 vector of model weights
+//' @param b the model bias term
+//' @param X n-by-p matrix of n samples in p dimensions
+//' @param y n-by-1 binary response vector sampled from {0,1}
+//' @param l1 L1-norm penalty scaling factor \eqn{\lambda_1}
+//' @param l2 L2-norm penalty scaling factor \eqn{\lambda_2}
+//' @param d p-by-1 vector of feature weights
+//' @param P p-by-p feature-feature penalty matrix
+//' @param m p-by-1 vector of translation coefficients
+//' @param balanced boolean specifying whether the balanced model is being evaluated
+//' @return The objective function value.
+//' @seealso \code{\link{gelnet}}
+//' @export
 // [[Rcpp::export]]
 double rcpp_gelnet_logreg_obj( arma::vec w, double b, arma::mat X, arma::Col<int> y,
 				  double l1, double l2, bool balanced = false,
@@ -91,30 +152,8 @@ double rcpp_gelnet_logreg_obj( arma::vec w, double b, arma::mat X, arma::Col<int
 				  Nullable<NumericMatrix> P = R_NilValue,
 				  Nullable<NumericVector> m = R_NilValue )
 {
-  // Compute fits and inverse labels
-  arma::Col<int> y1 = 1 - y;
   arma::vec s = (X*w + b);
-
-  // Compute logit transforms for individual samples
-  arma::vec ls = exp(s);
-  ls.for_each( [](double& val) {val = std::log1p(val);} );
-
-  // Per-class loss terms
-  arma::vec lossp = y % (ls - s);
-  arma::vec lossn = y1 % ls;
-
-  // Overall loss term
-  double L = 0.0;
-  if( balanced )
-    L = 0.5 * ( sum(lossp) / sum(y) + sum(lossn) / sum(y1) );
-  else
-    L = (sum(lossp) + sum(lossn)) / X.n_rows;
-
-  // Regularization terms
-  double R1 = l1penalty( l1, w, d );
-  double R2 = l2penalty( l2, w, P, m );
-
-  return L+R1+R2;
+  return rcpp_gelnet_logreg_obj_w( w, s, y, l1, l2, balanced, d, P, m );
 }
 
 // Soft threshold
@@ -127,6 +166,7 @@ double sthresh( double x, double a )
 }
 
 // Computes the new value for coordinate j
+// Not exported
 double computeCoord( arma::mat X, arma::vec z, double l1, double l2,
 		     arma::vec s, arma::vec Pwm, arma::vec w,
 		     int j, bool nonneg,
@@ -169,7 +209,34 @@ double computeCoord( arma::mat X, arma::vec z, double l1, double l2,
   return res;
 }
 
-// Optimizes the GELNET linear objective via coordinate descent
+//' GELnet for linear regression
+//'
+//' Constructs a GELnet model for linear regression using coordinate descent.
+//'
+//' The method operates through cyclical coordinate descent.
+//' The optimization is terminated after the desired tolerance is achieved, or after a maximum number of iterations.
+//'
+//' @param X n-by-p matrix of n samples in p dimensions
+//' @param z n-by-1 vector of response values
+//' @param l1 coefficient for the L1-norm penalty
+//' @param l2 coefficient for the L2-norm penalty
+//' @param a n-by-1 vector of sample weights
+//' @param d p-by-1 vector of feature weights
+//' @param P p-by-p feature association penalty matrix
+//' @param m p-by-1 vector of translation coefficients
+//' @param max.iter maximum number of iterations
+//' @param eps convergence precision
+//' @param w.init initial parameter estimate for the weights
+//' @param b.init initial parameter estimate for the bias term
+//' @param fix.bias set to TRUE to prevent the bias term from being updated (default: FALSE)
+//' @param silent set to TRUE to suppress run-time output to stdout (default: FALSE)
+//' @param nonneg set to TRUE to enforce non-negativity constraints on the weights (default: FALSE )
+//' @return A list with two elements:
+//' \describe{
+//'   \item{w}{p-by-1 vector of p model weights}
+//'   \item{b}{scalar, bias term for the linear model}
+//' }
+//' @export
 // [[Rcpp::export]]
 List rcpp_gelnet_lin_opt( arma::mat X, arma::vec z, double l1, double l2,
 			  int max_iter = 100, double eps = 1e-5, bool fix_bias = false,
@@ -263,6 +330,92 @@ List rcpp_gelnet_lin_opt( arma::mat X, arma::vec z, double l1, double l2,
       if( fabs( f - fprev ) / fabs( fprev ) < eps ) break;
       else fprev = f;
     }
+  if( iter > max_iter ) --iter;    // Corner case: loop didn't end via break
+  if( !silent )
+    Rcout<<"Final value is "<<f<<" after iteration "<<iter<<std::endl;
+
+  return List::create( Named("w") = w, Named("b") = b );
+}
+
+// Optimizes logistic regression objective via coordinate descent
+// [[Rcpp::export]]
+List rcpp_gelnet_logreg_opt( arma::mat X, arma::Col<int> y, double l1, double l2,
+			     int max_iter = 100, double eps = 1e-5,
+			     bool silent = false, bool verbose = false,
+			     bool balanced = false, bool nonneg = false,
+			     Nullable<NumericVector> w_init = R_NilValue,
+			     Nullable<double> b_init = R_NilValue,
+			     Nullable<NumericVector> d = R_NilValue,
+			     Nullable<NumericMatrix> P = R_NilValue,
+			     Nullable<NumericVector> m = R_NilValue )
+{
+  // Retrieve data dimensionality
+  int n = X.n_rows;
+  int p = X.n_cols;
+  double npos = sum(y);
+  double nneg = n - npos;
+
+  // Initialize the model (using provided values if available)
+  arma::vec w; double b;
+  if( w_init.isNotNull() ) w = as<arma::vec>(w_init);
+  else w.zeros(p);
+  if( b_init.isNotNull() ) b = as<double>(b_init);
+  else b = 0.0;
+
+  // Compute the initial fits and objective function value
+  arma::vec s = (X*w + b);
+  double fprev = rcpp_gelnet_logreg_obj_w( w, s, y, l1, l2, balanced, d, P, m );
+  if( !silent ) Rcout<<"Initial objective value: "<<fprev<<std::endl;
+
+  // Main optimization loop
+  int iter; double f = 0.0;
+  for( iter = 1; iter <= max_iter; ++iter )
+    {
+      if( !silent && verbose )
+	Rcout<<"Iteration "<<iter<<": "<<"f = "<<fprev<<std::endl;
+
+      // Compute the current fit
+      arma::vec pr = 1 / (1 + exp(-s));
+      arma::vec a = pr * (1-pr);
+
+      // Handle near-zero and near-one probability values
+      for( arma::uword i = 0; i < pr.n_elem; ++i )
+	{
+	  if( pr(i) < eps ) { pr(i) = 0.0; a(i) = eps; }
+	  else if( pr(i) > (1-eps) ) { pr(i) = 1.0; a(i) = eps; }
+	}
+
+      // Compute the response
+      arma::vec z = s + (y - pr) / a;
+
+      // Rebalance the sample weights according to the class counts
+      if( balanced )
+	{
+	  for( arma::uword i = 0; i < y.n_elem; ++i )
+	    {
+	      if( y(i) == 0 ) a(i) *= n / (nneg*2);
+	      else a(i) *= n / (npos*2);
+	    }
+	}
+
+      // Perform coordinate descent
+      int nIter = iter * 2;
+      NumericVector w0 = wrap(w);
+      NumericVector a0 = wrap(a);
+      Nullable<double> b0 = wrap(b);
+      List newModel = rcpp_gelnet_lin_opt( X, z, l1, l2,
+					   nIter, eps, false,
+					   true, false, nonneg,
+					   w0, b0, a0, d, P, m );
+      w = as<arma::vec>( newModel["w"] );
+      b = newModel["b"];
+
+      // Compute the objective function value and check the stopping criterion
+      double f = rcpp_gelnet_logreg_obj_w( w, s, y, l1, l2, balanced, d, P, m );
+      if( fabs( f - fprev ) / fabs( fprev ) < eps ) break;
+      else fprev = f;
+    }
+
   if( iter > max_iter ) --iter;    // Corner case: loop didn't end via break
   if( !silent )
     Rcout<<"Final value is "<<f<<" after iteration "<<iter<<std::endl;
