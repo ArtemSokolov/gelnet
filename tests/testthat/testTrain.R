@@ -128,6 +128,7 @@ test_that( "Logistic regression training", {
     params[[2]] <- c( params[[1]], list(d = runif( p )) )
     params[[3]] <- c( params[[2]], list(P = t(A) %*% A / p) )
     params[[4]] <- c( params[[3]], list(m = rnorm(p, sd=0.1)) )
+    params[[5]] <- c( params[[4]], list(balanced=TRUE) )
 
     ## Generate the models and matching objective functions
     mm <- purrr::map( params, ftrain )
@@ -141,4 +142,8 @@ test_that( "Logistic regression training", {
     ## Verify optimality of each model w.r.t. its obj. fun.
     purrr::map2( mm, ff, expect_optimal )
     expect_relopt( mm, ff )
+
+    ## Test non-negativity
+    mnn <- do.call( rcpp_gelnet_logreg_opt, c(params[[5]], list(nonneg=TRUE, silent=TRUE)) )
+    purrr::map( mnn$w, expect_gte, 0 )
 })

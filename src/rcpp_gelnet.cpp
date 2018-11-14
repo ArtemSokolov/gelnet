@@ -1,3 +1,4 @@
+#define RCPP_ARMADILLO_RETURN_COLVEC_AS_VECTOR
 #include <RcppArmadillo.h>
 
 using namespace Rcpp;
@@ -376,7 +377,7 @@ List rcpp_gelnet_logreg_opt( arma::mat X, arma::Col<int> y, double l1, double l2
 
       // Compute the current fit
       arma::vec pr = 1 / (1 + exp(-s));
-      arma::vec a = pr * (1-pr);
+      arma::vec a = pr % (1-pr);
 
       // Handle near-zero and near-one probability values
       for( arma::uword i = 0; i < pr.n_elem; ++i )
@@ -386,7 +387,7 @@ List rcpp_gelnet_logreg_opt( arma::mat X, arma::Col<int> y, double l1, double l2
 	}
 
       // Compute the response
-      arma::vec z = s + (y - pr) / a;
+      arma::vec z = s + (y-pr) / a;
 
       // Rebalance the sample weights according to the class counts
       if( balanced )
@@ -407,11 +408,14 @@ List rcpp_gelnet_logreg_opt( arma::mat X, arma::Col<int> y, double l1, double l2
 					   nIter, eps, false,
 					   true, false, nonneg,
 					   w0, b0, a0, d, P, m );
+
+      // Recompute the fits
       w = as<arma::vec>( newModel["w"] );
       b = newModel["b"];
+      s = (X*w + b);
 
       // Compute the objective function value and check the stopping criterion
-      double f = rcpp_gelnet_logreg_obj_w( w, s, y, l1, l2, balanced, d, P, m );
+      f = rcpp_gelnet_logreg_obj_w( w, s, y, l1, l2, balanced, d, P, m );
       if( fabs( f - fprev ) / fabs( fprev ) < eps ) break;
       else fprev = f;
     }
