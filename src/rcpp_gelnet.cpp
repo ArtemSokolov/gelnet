@@ -28,14 +28,14 @@ double l2penalty( double l2, arma::vec w,
   return l2 * arma::as_scalar(w2t * w2) / 2.0;
 }
 
-// Worker for rcpp_gelnet_lin_obj() that take pre-computed fits
+// Worker for gelnet_lin_obj() that take pre-computed fits
 // Not exported
-double rcpp_gelnet_lin_obj_w( arma::vec w, arma::vec s, arma::vec z,
-			      double l1, double l2,
-			      Nullable<NumericVector> a = R_NilValue,
-			      Nullable<NumericVector> d = R_NilValue,
-			      Nullable<NumericMatrix> P = R_NilValue,
-			      Nullable<NumericVector> m = R_NilValue )
+double gelnet_lin_obj_w( arma::vec w, arma::vec s, arma::vec z,
+			 double l1, double l2,
+			 Nullable<NumericVector> a = R_NilValue,
+			 Nullable<NumericVector> d = R_NilValue,
+			 Nullable<NumericMatrix> P = R_NilValue,
+			 Nullable<NumericVector> m = R_NilValue )
 {
   // Loss
   arma::vec err = z - s;
@@ -50,9 +50,9 @@ double rcpp_gelnet_lin_obj_w( arma::vec w, arma::vec s, arma::vec z,
   return L + R1 + R2;
 }
 
-// Worker for rcpp_gelnet_logreg_obj() that take pre-computed fits
+// Worker for gelnet_blr_obj() that take pre-computed fits
 // Not exported
-double rcpp_gelnet_logreg_obj_w( arma::vec w, arma::vec s, arma::Col<int> y,
+double gelnet_blr_obj_w( arma::vec w, arma::vec s, arma::Col<int> y,
 				  double l1, double l2, bool balanced,
 				  Nullable<NumericVector> d = R_NilValue,
 				  Nullable<NumericMatrix> P = R_NilValue,
@@ -108,15 +108,15 @@ double rcpp_gelnet_logreg_obj_w( arma::vec w, arma::vec s, arma::Col<int> y,
 //' @return The objective function value.
 //' @export
 // [[Rcpp::export]]
-double rcpp_gelnet_lin_obj( arma::vec w, double b, arma::mat X,
-			    arma::vec z, double l1, double l2,
-			    Nullable<NumericVector> a = R_NilValue,
-			    Nullable<NumericVector> d = R_NilValue,
-			    Nullable<NumericMatrix> P = R_NilValue,
-			    Nullable<NumericVector> m = R_NilValue )
+double gelnet_lin_obj( arma::vec w, double b, arma::mat X,
+		       arma::vec z, double l1, double l2,
+		       Nullable<NumericVector> a = R_NilValue,
+		       Nullable<NumericVector> d = R_NilValue,
+		       Nullable<NumericMatrix> P = R_NilValue,
+		       Nullable<NumericVector> m = R_NilValue )
 {
   arma::vec s = (X*w + b);
-  return rcpp_gelnet_lin_obj_w( w, s, z, l1, l2, a, d, P, m );
+  return gelnet_lin_obj_w( w, s, z, l1, l2, a, d, P, m );
 }
 
 //' Logistic regression objective function value
@@ -147,14 +147,14 @@ double rcpp_gelnet_lin_obj( arma::vec w, double b, arma::mat X,
 //' @seealso \code{\link{gelnet}}
 //' @export
 // [[Rcpp::export]]
-double rcpp_gelnet_logreg_obj( arma::vec w, double b, arma::mat X, arma::Col<int> y,
-				  double l1, double l2, bool balanced = false,
-				  Nullable<NumericVector> d = R_NilValue,
-				  Nullable<NumericMatrix> P = R_NilValue,
-				  Nullable<NumericVector> m = R_NilValue )
+double gelnet_blr_obj( arma::vec w, double b, arma::mat X, arma::Col<int> y,
+			  double l1, double l2, bool balanced = false,
+			  Nullable<NumericVector> d = R_NilValue,
+			  Nullable<NumericMatrix> P = R_NilValue,
+			  Nullable<NumericVector> m = R_NilValue )
 {
   arma::vec s = (X*w + b);
-  return rcpp_gelnet_logreg_obj_w( w, s, y, l1, l2, balanced, d, P, m );
+  return gelnet_blr_obj_w( w, s, y, l1, l2, balanced, d, P, m );
 }
 
 // Soft threshold
@@ -240,15 +240,15 @@ double computeCoord( arma::mat X, arma::vec z, double l1, double l2,
 //' }
 //' @export
 // [[Rcpp::export]]
-List rcpp_gelnet_lin_opt( arma::mat X, arma::vec z, double l1, double l2,
-			  int max_iter = 100, double eps = 1e-5, bool fix_bias = false,
-			  bool silent = false, bool verbose = false, bool nonneg = false,
-			  Nullable<NumericVector> w_init = R_NilValue,
-			  Nullable<double> b_init = R_NilValue,
-			  Nullable<NumericVector> a = R_NilValue,
-			  Nullable<NumericVector> d = R_NilValue,
-			  Nullable<NumericMatrix> P = R_NilValue,
-			  Nullable<NumericVector> m = R_NilValue )
+List gelnet_lin_opt( arma::mat X, arma::vec z, double l1, double l2,
+		     int max_iter = 100, double eps = 1e-5, bool fix_bias = false,
+		     bool silent = false, bool verbose = false, bool nonneg = false,
+		     Nullable<NumericVector> w_init = R_NilValue,
+		     Nullable<double> b_init = R_NilValue,
+		     Nullable<NumericVector> a = R_NilValue,
+		     Nullable<NumericVector> d = R_NilValue,
+		     Nullable<NumericMatrix> P = R_NilValue,
+		     Nullable<NumericVector> m = R_NilValue )
 {
   // Retrieve data dimensionality
   int n = X.n_rows;
@@ -270,7 +270,7 @@ List rcpp_gelnet_lin_opt( arma::mat X, arma::vec z, double l1, double l2,
 
   // Compute the initial fits and objective function value
   arma::vec s = (X*w + b);
-  double fprev = rcpp_gelnet_lin_obj_w( w, s, z, l1, l2, a, d, P, m );
+  double fprev = gelnet_lin_obj_w( w, s, z, l1, l2, a, d, P, m );
   if( !silent )
     Rcout<<"Initial objective value: "<<fprev<<std::endl;
 
@@ -326,7 +326,7 @@ List rcpp_gelnet_lin_opt( arma::mat X, arma::vec z, double l1, double l2,
 	}
 
       // Compute the new objective function value
-      f = rcpp_gelnet_lin_obj_w( w, s, z, l1, l2, a, d, P, m );
+      f = gelnet_lin_obj_w( w, s, z, l1, l2, a, d, P, m );
       if( !silent && verbose )
 	Rcout<<"After iteration "<<iter<<": "<<f<<std::endl;
       if( fabs( f - fprev ) / fabs( fprev ) < eps ) break;
@@ -370,15 +370,15 @@ List rcpp_gelnet_lin_opt( arma::mat X, arma::vec z, double l1, double l2,
 //' @seealso \code{\link{gelnet.lin}}
 //' @export
 // [[Rcpp::export]]
-List rcpp_gelnet_logreg_opt( arma::mat X, arma::Col<int> y, double l1, double l2,
-			     int max_iter = 100, double eps = 1e-5,
-			     bool silent = false, bool verbose = false,
-			     bool balanced = false, bool nonneg = false,
-			     Nullable<NumericVector> w_init = R_NilValue,
-			     Nullable<double> b_init = R_NilValue,
-			     Nullable<NumericVector> d = R_NilValue,
-			     Nullable<NumericMatrix> P = R_NilValue,
-			     Nullable<NumericVector> m = R_NilValue )
+List gelnet_blr_opt( arma::mat X, arma::Col<int> y, double l1, double l2,
+			int max_iter = 100, double eps = 1e-5,
+			bool silent = false, bool verbose = false,
+			bool balanced = false, bool nonneg = false,
+			Nullable<NumericVector> w_init = R_NilValue,
+			Nullable<double> b_init = R_NilValue,
+			Nullable<NumericVector> d = R_NilValue,
+			Nullable<NumericMatrix> P = R_NilValue,
+			Nullable<NumericVector> m = R_NilValue )
 {
   // Retrieve data dimensionality
   int n = X.n_rows;
@@ -395,7 +395,7 @@ List rcpp_gelnet_logreg_opt( arma::mat X, arma::Col<int> y, double l1, double l2
 
   // Compute the initial fits and objective function value
   arma::vec s = (X*w + b);
-  double fprev = rcpp_gelnet_logreg_obj_w( w, s, y, l1, l2, balanced, d, P, m );
+  double fprev = gelnet_blr_obj_w( w, s, y, l1, l2, balanced, d, P, m );
   if( !silent ) Rcout<<"Initial objective value: "<<fprev<<std::endl;
 
   // Main optimization loop
@@ -434,10 +434,8 @@ List rcpp_gelnet_logreg_opt( arma::mat X, arma::Col<int> y, double l1, double l2
       NumericVector w0 = wrap(w);
       NumericVector a0 = wrap(a);
       Nullable<double> b0 = wrap(b);
-      List newModel = rcpp_gelnet_lin_opt( X, z, l1, l2,
-					   nIter, eps, false,
-					   true, false, nonneg,
-					   w0, b0, a0, d, P, m );
+      List newModel = gelnet_lin_opt( X, z, l1, l2, nIter, eps, false,
+				      true, false, nonneg, w0, b0, a0, d, P, m );
 
       // Recompute the fits
       w = as<arma::vec>( newModel["w"] );
@@ -445,7 +443,7 @@ List rcpp_gelnet_logreg_opt( arma::mat X, arma::Col<int> y, double l1, double l2
       s = (X*w + b);
 
       // Compute the objective function value and check the stopping criterion
-      f = rcpp_gelnet_logreg_obj_w( w, s, y, l1, l2, balanced, d, P, m );
+      f = gelnet_blr_obj_w( w, s, y, l1, l2, balanced, d, P, m );
       if( fabs( f - fprev ) / fabs( fprev ) < eps ) break;
       else fprev = f;
     }

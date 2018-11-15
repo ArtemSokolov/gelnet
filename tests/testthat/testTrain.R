@@ -66,11 +66,11 @@ test_that( "linear training", {
 
     ## Silently trains a linear GELnet model using the provided parameters
     ftrain <- function( prms )
-        do.call( rcpp_gelnet_lin_opt, c(prms, list(silent=TRUE)) )
+        do.call( gelnet_lin_opt, c(prms, list(silent=TRUE)) )
 
     ## Generates a model evaluator using a given set of parameters
     fgen <- function( prms )
-        { function( mdl ) { do.call( rcpp_gelnet_lin_obj, c(mdl,prms) ) } }
+        { function( mdl ) { do.call( gelnet_lin_obj, c(mdl,prms) ) } }
 
     ## Preset L1 and L2 penalty coefficients and generate a sequence of
     ##   models increasing in complexity
@@ -96,12 +96,12 @@ test_that( "linear training", {
     expect_relopt( mm, ff )
 
     ## Test bias fixture
-    mfb <- do.call( rcpp_gelnet_lin_opt, c(params[[4]], list(silent=TRUE, fix_bias=TRUE)) )
+    mfb <- do.call( gelnet_lin_opt, c(params[[4]], list(silent=TRUE, fix_bias=TRUE)) )
     expect_equal( mfb$b, with(params[[4]], sum(a*z)/sum(a)) )
     expect_lt( ff[[4]](mm[[4]]), ff[[4]](mfb) )
 
     ## Test non-negativity
-    mnn <- do.call( rcpp_gelnet_lin_opt, c(params[[4]], list(silent=TRUE, nonneg=TRUE)) )
+    mnn <- do.call( gelnet_lin_opt, c(params[[4]], list(silent=TRUE, nonneg=TRUE)) )
     purrr::map( mnn$w, expect_gte, 0 )
     expect_lt( ff[[4]](mm[[4]]), ff[[4]](mnn) )
 })
@@ -113,11 +113,11 @@ test_that( "Logistic regression training", {
 
     ## Silently trains a logistic GELnet model using the provided parameters
     ftrain <- function( prms )
-    { do.call( rcpp_gelnet_logreg_opt, c(prms, list(silent=TRUE)) ) }
+    { do.call( gelnet_blr_opt, c(prms, list(silent=TRUE)) ) }
 
     ## Generates a model evaluator using a given set of parameters
     fgen <- function( prms )
-    { function( mdl ) { do.call( rcpp_gelnet_logreg_obj, c(mdl,prms) ) } }
+    { function( mdl ) { do.call( gelnet_blr_obj, c(mdl,prms) ) } }
 
     ## Preset L1 and L2 penalty coefficients and generate a sequence of
     ##   models increasing in complexity
@@ -147,6 +147,6 @@ test_that( "Logistic regression training", {
     expect_lt( abs(mm[[5]]$b), abs(mm[[4]]$b) )
 
     ## Test non-negativity
-    mnn <- do.call( rcpp_gelnet_logreg_opt, c(params[[5]], list(nonneg=TRUE, silent=TRUE)) )
+    mnn <- do.call( gelnet_blr_opt, c(params[[5]], list(nonneg=TRUE, silent=TRUE)) )
     purrr::map( mnn$w, expect_gte, 0 )
 })

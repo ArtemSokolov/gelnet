@@ -135,7 +135,6 @@ L1.ceiling <- function( X, y, a = rep(1,nrow(X)), d = rep(1,ncol(X)),
 #'   \item{w}{p-by-1 vector of p model weights}
 #'   \item{b}{scalar, bias term for the linear model (omitted for one-class models)}
 #' }
-#' @seealso \code{\link{gelnet.lin.obj}}, \code{\link{gelnet.logreg.obj}}, \code{\link{gelnet.oneclass.obj}}
 #' @export
 gelnet <- function( X, y, l1, l2, nFeats=NULL, a=rep(1,n), d=rep(1,p), P=diag(p), m=rep(0,p),
                    max.iter=100, eps=1e-5, w.init=rep(0,p), b.init=NULL,
@@ -519,7 +518,6 @@ gelnet.lin <- function( X, z, l1, l2, a = rep(1,n), d = rep(1,p), P = diag(p),
 #'   \item{w}{p-by-1 vector of p model weights}
 #'   \item{b}{scalar, bias term for the linear model}
 #' }
-#' @seealso \code{\link{gelnet.lin}}
 #' @noRd
 gelnet.logreg <- function( X, y, l1, l2, d = rep(1,p), P = diag(p), m = rep(0,p),
                           max.iter = 100, eps = 1e-5, w.init = rep(0,p),
@@ -582,7 +580,6 @@ gelnet.logreg <- function( X, y, l1, l2, d = rep(1,p), P = diag(p), m = rep(0,p)
 #' \describe{
 #'   \item{w}{p-by-1 vector of p model weights}
 #' }
-#' @seealso \code{\link{gelnet.lin}}, \code{\link{gelnet.oneclass.obj}}
 #' @noRd
 gelnet.oneclass <- function( X, l1, l2, d = rep(1,p), P = diag(p), m = rep(0,p),
                             max.iter = 100, eps = 1e-5,
@@ -710,7 +707,6 @@ gelnet.L1bin <- function( f.gelnet, nF, l1s, max.iter=10 )
 #'   \item{v}{n-by-1 vector of kernel weights}
 #'   \item{b}{scalar, bias term for the model}
 #' }
-#' @seealso \code{\link{gelnet.lin.obj}}
 #' @noRd
 gelnet.krr <- function( K, y, lambda, a, fix.bias=FALSE )
   {

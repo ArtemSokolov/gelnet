@@ -23,8 +23,8 @@
 #' @param m p-by-1 vector of translation coefficients
 #' @return The objective function value.
 #' @export
-rcpp_gelnet_lin_obj <- function(w, b, X, z, l1, l2, a = NULL, d = NULL, P = NULL, m = NULL) {
-    .Call('_gelnet_rcpp_gelnet_lin_obj', PACKAGE = 'gelnet', w, b, X, z, l1, l2, a, d, P, m)
+gelnet_lin_obj <- function(w, b, X, z, l1, l2, a = NULL, d = NULL, P = NULL, m = NULL) {
+    .Call('_gelnet_gelnet_lin_obj', PACKAGE = 'gelnet', w, b, X, z, l1, l2, a, d, P, m)
 }
 
 #' Logistic regression objective function value
@@ -54,8 +54,8 @@ rcpp_gelnet_lin_obj <- function(w, b, X, z, l1, l2, a = NULL, d = NULL, P = NULL
 #' @return The objective function value.
 #' @seealso \code{\link{gelnet}}
 #' @export
-rcpp_gelnet_logreg_obj <- function(w, b, X, y, l1, l2, balanced = FALSE, d = NULL, P = NULL, m = NULL) {
-    .Call('_gelnet_rcpp_gelnet_logreg_obj', PACKAGE = 'gelnet', w, b, X, y, l1, l2, balanced, d, P, m)
+gelnet_blr_obj <- function(w, b, X, y, l1, l2, balanced = FALSE, d = NULL, P = NULL, m = NULL) {
+    .Call('_gelnet_gelnet_blr_obj', PACKAGE = 'gelnet', w, b, X, y, l1, l2, balanced, d, P, m)
 }
 
 #' GELnet for linear regression
@@ -87,8 +87,8 @@ rcpp_gelnet_logreg_obj <- function(w, b, X, y, l1, l2, balanced = FALSE, d = NUL
 #'   \item{b}{scalar, bias term for the linear model}
 #' }
 #' @export
-rcpp_gelnet_lin_opt <- function(X, z, l1, l2, max_iter = 100L, eps = 1e-5, fix_bias = FALSE, silent = FALSE, verbose = FALSE, nonneg = FALSE, w_init = NULL, b_init = NULL, a = NULL, d = NULL, P = NULL, m = NULL) {
-    .Call('_gelnet_rcpp_gelnet_lin_opt', PACKAGE = 'gelnet', X, z, l1, l2, max_iter, eps, fix_bias, silent, verbose, nonneg, w_init, b_init, a, d, P, m)
+gelnet_lin_opt <- function(X, z, l1, l2, max_iter = 100L, eps = 1e-5, fix_bias = FALSE, silent = FALSE, verbose = FALSE, nonneg = FALSE, w_init = NULL, b_init = NULL, a = NULL, d = NULL, P = NULL, m = NULL) {
+    .Call('_gelnet_gelnet_lin_opt', PACKAGE = 'gelnet', X, z, l1, l2, max_iter, eps, fix_bias, silent, verbose, nonneg, w_init, b_init, a, d, P, m)
 }
 
 #' GELnet for logistic regression
@@ -121,7 +121,7 @@ rcpp_gelnet_lin_opt <- function(X, z, l1, l2, max_iter = 100L, eps = 1e-5, fix_b
 #' }
 #' @seealso \code{\link{gelnet.lin}}
 #' @export
-rcpp_gelnet_logreg_opt <- function(X, y, l1, l2, max_iter = 100L, eps = 1e-5, silent = FALSE, verbose = FALSE, balanced = FALSE, nonneg = FALSE, w_init = NULL, b_init = NULL, d = NULL, P = NULL, m = NULL) {
-    .Call('_gelnet_rcpp_gelnet_logreg_opt', PACKAGE = 'gelnet', X, y, l1, l2, max_iter, eps, silent, verbose, balanced, nonneg, w_init, b_init, d, P, m)
+gelnet_blr_opt <- function(X, y, l1, l2, max_iter = 100L, eps = 1e-5, silent = FALSE, verbose = FALSE, balanced = FALSE, nonneg = FALSE, w_init = NULL, b_init = NULL, d = NULL, P = NULL, m = NULL) {
+    .Call('_gelnet_gelnet_blr_opt', PACKAGE = 'gelnet', X, y, l1, l2, max_iter, eps, silent, verbose, balanced, nonneg, w_init, b_init, d, P, m)
 }
 

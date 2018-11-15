@@ -22,11 +22,11 @@ test_that( "linear objective", {
     m <- rnorm(p, sd= 0.1)
 
     ## Evaluate increasingly complex models
-    expect_equal( rcpp_gelnet_lin_obj( w, b, X, z, 0, 0.1 ), 15.81988, tol=1e-5 )
-    expect_equal( rcpp_gelnet_lin_obj( w, b, X, z, 0.1, 0.1 ), 18.8965, tol=1e-5 )
-    expect_equal( rcpp_gelnet_lin_obj( w, b, X, z, 0.1, 0.1, a, d ), 9.982413, tol=1e-5 )
-    expect_equal( rcpp_gelnet_lin_obj( w, b, X, z, 0.1, 0.1, a, d, P ), 10.11774, tol=1e-5 )
-    expect_equal( rcpp_gelnet_lin_obj( w, b, X, z, 0.1, 0.1, a, d, P, m ), 10.09573, tol=1e-5 )
+    expect_equal( gelnet_lin_obj( w, b, X, z, 0, 0.1 ), 15.81988, tol=1e-5 )
+    expect_equal( gelnet_lin_obj( w, b, X, z, 0.1, 0.1 ), 18.8965, tol=1e-5 )
+    expect_equal( gelnet_lin_obj( w, b, X, z, 0.1, 0.1, a, d ), 9.982413, tol=1e-5 )
+    expect_equal( gelnet_lin_obj( w, b, X, z, 0.1, 0.1, a, d, P ), 10.11774, tol=1e-5 )
+    expect_equal( gelnet_lin_obj( w, b, X, z, 0.1, 0.1, a, d, P, m ), 10.09573, tol=1e-5 )
 })
 
 test_that( "Logistic regression objective", {
@@ -49,11 +49,11 @@ test_that( "Logistic regression objective", {
     m <- rnorm(p, sd= 0.1)
 
     ## Evaluate increasingly complex models
-    expect_equal( rcpp_gelnet_logreg_obj( w, b, X, y, 0, 0.01 ), 1.409101, tol=1e-5 )
-    expect_equal( rcpp_gelnet_logreg_obj( w, b, X, y, 0.1, 0.1 ), 5.979731, tol=1e-5 )
-    expect_equal( rcpp_gelnet_logreg_obj( w, b, X, y, 0.1, 0.1, FALSE, d ), 4.673295, tol=1e-5 )
-    expect_equal( rcpp_gelnet_logreg_obj( w, b, X, y, 0.1, 0.1, FALSE, d, P ),
+    expect_equal( gelnet_blr_obj( w, b, X, y, 0, 0.01 ), 1.409101, tol=1e-5 )
+    expect_equal( gelnet_blr_obj( w, b, X, y, 0.1, 0.1 ), 5.979731, tol=1e-5 )
+    expect_equal( gelnet_blr_obj( w, b, X, y, 0.1, 0.1, FALSE, d ), 4.673295, tol=1e-5 )
+    expect_equal( gelnet_blr_obj( w, b, X, y, 0.1, 0.1, FALSE, d, P ),
                  4.952671, tol=1e-5 )
-    expect_equal( rcpp_gelnet_logreg_obj( w, b, X, y, 0.1, 0.1, FALSE, d, P, m ),
+    expect_equal( gelnet_blr_obj( w, b, X, y, 0.1, 0.1, FALSE, d, P, m ),
                  4.960332, tol=1e-5 )
 })

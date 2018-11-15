@@ -74,6 +74,3 @@ In all cases, the regularizer is defined by
 
 The training itself is performed through cyclical coordinate descent, and the optimization is terminated after the desired tolerance is achieved or after a maximum number of iterations.
 }
-\seealso{
-\code{\link{gelnet.lin.obj}}, \code{\link{gelnet.logreg.obj}}, \code{\link{gelnet.oneclass.obj}}
-}
