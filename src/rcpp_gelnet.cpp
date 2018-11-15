@@ -84,6 +84,27 @@ double gelnet_blr_obj_w( arma::vec w, arma::vec s, arma::Col<int> y,
   return L+R1+R2;
 }
 
+//' One-class logistic regression objective function value
+// [[Rcpp::export]]
+double gelnet_oclr_obj( arma::vec w, arma::mat X, double l1, double l2,
+		       Nullable<NumericVector> d = R_NilValue,
+		       Nullable<NumericMatrix> P = R_NilValue,
+		       Nullable<NumericVector> m = R_NilValue )
+{
+  // Compute the loss term
+  arma::vec s = X*w;
+  arma::vec ls = exp(s);
+  for( arma::uword i = 0; i < ls.n_elem; ++i )
+    ls(i) = std::log1p(ls(i));
+  double L = -mean( s - ls );
+
+  // Regularization terms
+  double R1 = l1penalty( l1, w, d );
+  double R2 = l2penalty( l2, w, P, m );
+
+  return L+R1+R2;
+}
+
 
 //' Linear regression objective function value
 //'

@@ -1,6 +1,6 @@
 context("Objective functions")
 
-test_that( "linear objective", {
+test_that( "Linear regression objective", {
     ## Preset dimensionality
     n <- 20
     p <- 50
@@ -29,7 +29,7 @@ test_that( "linear objective", {
     expect_equal( gelnet_lin_obj( w, b, X, z, 0.1, 0.1, a, d, P, m ), 10.09573, tol=1e-5 )
 })
 
-test_that( "Logistic regression objective", {
+test_that( "Binary logistic regression objective", {
     ## Preset dimensionality
     n <- 20
     p <- 50
@@ -56,4 +56,29 @@ test_that( "Logistic regression objective", {
                  4.952671, tol=1e-5 )
     expect_equal( gelnet_blr_obj( w, b, X, y, 0.1, 0.1, FALSE, d, P, m ),
                  4.960332, tol=1e-5 )
+})
+
+test_that( "One-class logistic regression objective", {
+    ## Preset dimensionality
+    n <- 20
+    p <- 50
+
+    ## Generate random model weights, bias and random data
+    set.seed(100)
+    w <- rnorm( p )
+    X <- matrix( rnorm(n*p), n, p )
+
+    ## Generate random sample and feature weights, feature-feature
+    ##  penalties and translation coeffs
+    d <- runif( p )
+    A <- matrix( rnorm(p*p), p, p )
+    P <- t(A) %*% A / p
+    m <- rnorm(p, sd= 0.1)
+
+    ## Evaluate increasingly complex models
+    expect_equal( gelnet_oclr_obj( w, X, 0, 0.01 ), 2.350596, tol=1e-5 )
+    expect_equal( gelnet_oclr_obj( w, X, 0.1, 0.1 ), 6.921226, tol=1e-5 )
+    expect_equal( gelnet_oclr_obj( w, X, 0.1, 0.1, d ), 5.347373, tol=1e-5 )
+    expect_equal( gelnet_oclr_obj( w, X, 0.1, 0.1, d, P ), 5.354515, tol=1e-5 )
+    expect_equal( gelnet_oclr_obj( w, X, 0.1, 0.1, d, P, m ), 5.220578, tol=1e-5 )
 })

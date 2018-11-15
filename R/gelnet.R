@@ -30,7 +30,7 @@ gelnet.oneclass.obj <- function( w, X, l1, l2, d = rep(1,ncol(X)),
     LL <- mean( s - log( 1 + exp(s) ) )
     R1 <- l1 * t(d) %*% abs(w)
     R2 <- l2 * t(w-m) %*% P %*% (w-m) / 2
-    R1 + R2 - LL
+    drop(R1 + R2 - LL)
   }
 
 #' The largest meaningful value of the L1 parameter
