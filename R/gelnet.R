@@ -2,37 +2,6 @@
 ##
 ## by Artem Sokolov
 
-#' One-class regression objective function value
-#'
-#' Evaluates the one-class objective function value for a given model
-#' See details.
-#'
-#' Computes the objective function value according to
-#' \deqn{ -\frac{1}{n} \sum_i s_i - \log( 1 + \exp(s_i) ) + R(w) }
-#'  where
-#' \deqn{ s_i = w^T x_i }
-#' \deqn{ R(w) = \lambda_1 \sum_j d_j |w_j| + \frac{\lambda_2}{2} (w-m)^T P (w-m) }
-#'
-#' @param w p-by-1 vector of model weights
-#' @param X n-by-p matrix of n samples in p dimensions
-#' @param l1 L1-norm penalty scaling factor \eqn{\lambda_1}
-#' @param l2 L2-norm penalty scaling factor \eqn{\lambda_2}
-#' @param d p-by-1 vector of feature weights
-#' @param P p-by-p feature-feature penalty matrix
-#' @param m p-by-1 vector of translation coefficients
-#' @return The objective function value.
-#' @seealso \code{\link{gelnet}}
-#' @export
-gelnet.oneclass.obj <- function( w, X, l1, l2, d = rep(1,ncol(X)),
-                                P = diag(ncol(X)), m = rep(0,ncol(X)) )
-  {
-    s <- X %*% w
-    LL <- mean( s - log( 1 + exp(s) ) )
-    R1 <- l1 * t(d) %*% abs(w)
-    R2 <- l2 * t(w-m) %*% P %*% (w-m) / 2
-    drop(R1 + R2 - LL)
-  }
-
 #' The largest meaningful value of the L1 parameter
 #'
 #' Computes the smallest value of the LASSO coefficient L1 that leads to an

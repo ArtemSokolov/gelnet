@@ -84,7 +84,27 @@ double gelnet_blr_obj_w( arma::vec w, arma::vec s, arma::Col<int> y,
   return L+R1+R2;
 }
 
-//' One-class logistic regression objective function value
+//' One-class regression objective function value
+//'
+//' Evaluates the one-class objective function value for a given model
+//' See details.
+//'
+//' Computes the objective function value according to
+//' \deqn{ -\frac{1}{n} \sum_i s_i - \log( 1 + \exp(s_i) ) + R(w) }
+//'  where
+//' \deqn{ s_i = w^T x_i }
+//' \deqn{ R(w) = \lambda_1 \sum_j d_j |w_j| + \frac{\lambda_2}{2} (w-m)^T P (w-m) }
+//'
+//' @param w p-by-1 vector of model weights
+//' @param X n-by-p matrix of n samples in p dimensions
+//' @param l1 L1-norm penalty scaling factor \eqn{\lambda_1}
+//' @param l2 L2-norm penalty scaling factor \eqn{\lambda_2}
+//' @param d p-by-1 vector of feature weights
+//' @param P p-by-p feature-feature penalty matrix
+//' @param m p-by-1 vector of translation coefficients
+//' @return The objective function value.
+//' @seealso \code{\link{gelnet}}
+//' @export
 // [[Rcpp::export]]
 double gelnet_oclr_obj( arma::vec w, arma::mat X, double l1, double l2,
 		       Nullable<NumericVector> d = R_NilValue,

@@ -12,7 +12,7 @@ Maintainer: Artem Sokolov <artem.sokolov@gmail.com>
 Depends: R (>= 3.1.0)
 Suggests: knitr, rmarkdown, tidyverse, rlang, testthat
 VignetteBuilder: knitr
-RoxygenNote: 6.1.0
+RoxygenNote: 6.0.1
 Packaged: 2016-04-04 23:16:50 UTC; sokolov
 NeedsCompilation: yes
 Repository: CRAN
