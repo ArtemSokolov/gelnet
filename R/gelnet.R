@@ -2,90 +2,6 @@
 ##
 ## by Artem Sokolov
 
-#' Linear regression objective function value
-#'
-#' Evaluates the linear regression objective function value for a given model.
-#' See details.
-#'
-#' Computes the objective function value according to
-#' \deqn{ \frac{1}{2n} \sum_i a_i (z_i - (w^T x_i + b))^2 + R(w) }
-#'  where
-#' \deqn{ R(w) = \lambda_1 \sum_j d_j |w_j| + \frac{\lambda_2}{2} (w-m)^T P (w-m) }
-#'
-#' @param w p-by-1 vector of model weights
-#' @param b the model bias term
-#' @param X n-by-p matrix of n samples in p dimensions
-#' @param z n-by-1 response vector
-#' @param l1 L1-norm penalty scaling factor \eqn{\lambda_1}
-#' @param l2 L2-norm penalty scaling factor \eqn{\lambda_2}
-#' @param a n-by-1 vector of sample weights
-#' @param d p-by-1 vector of feature weights
-#' @param P p-by-p feature-feature penalty matrix
-#' @param m p-by-1 vector of translation coefficients
-#' @return The objective function value.
-#' @seealso \code{\link{gelnet}}
-#' @export
-gelnet.lin.obj <- function( w, b, X, z, l1, l2, a = rep(1,nrow(X)),
-                           d = rep(1,ncol(X)), P = diag(ncol(X)), m = rep(0,ncol(X)) )
-  {
-    n <- nrow(X)
-    p <- ncol(X)
-
-    ## Compute the residual and loss
-    r <- z - (X %*% w + b)
-    L <- mean( a * r * r) / 2
-    R1 <- l1 * t(d) %*% abs(w)
-    R2 <- l2 * t(w-m) %*% P %*% (w-m) / 2
-
-    drop(L + R1 + R2)
-  }
-
-#' Logistic regression objective function value
-#'
-#' Evaluates the logistic regression objective function value for a given model.
-#' See details.
-#
-#' Computes the objective function value according to
-#' \deqn{ -\frac{1}{n} \sum_i y_i s_i - \log( 1 + \exp(s_i) ) + R(w) }
-#'  where
-#' \deqn{ s_i = w^T x_i + b }
-#' \deqn{ R(w) = \lambda_1 \sum_j d_j |w_j| + \frac{\lambda_2}{2} (w-m)^T P (w-m) }
-#' When balanced is TRUE, the loss average over the entire data is replaced with averaging
-#' over each class separately. The total loss is then computes as the mean over those
-#' per-class estimates.
-#'
-#' @param w p-by-1 vector of model weights
-#' @param b the model bias term
-#' @param X n-by-p matrix of n samples in p dimensions
-#' @param y n-by-1 binary response vector sampled from {0,1}
-#' @param l1 L1-norm penalty scaling factor \eqn{\lambda_1}
-#' @param l2 L2-norm penalty scaling factor \eqn{\lambda_2}
-#' @param d p-by-1 vector of feature weights
-#' @param P p-by-p feature-feature penalty matrix
-#' @param m p-by-1 vector of translation coefficients
-#' @param balanced boolean specifying whether the balanced model is being evaluated
-#' @return The objective function value.
-#' @seealso \code{\link{gelnet}}
-#' @export
-gelnet.logreg.obj <- function( w, b, X, y, l1, l2, d = rep(1,ncol(X)),
-                              P = diag(ncol(X)), m = rep(0,ncol(X)), balanced = FALSE )
-{
-    ## Compute the regularization terms
-    stopifnot( sort(unique(y)) == c(0,1) )
-    s <- X %*% w + b
-    R1 <- l1 * t(d) %*% abs(w)
-    R2 <- l2 * t(w-m) %*% P %*% (w-m) / 2
-
-    ## Compute log-likelihood
-    v <- y * s - log(1+exp(s))
-    if( balanced == TRUE )
-        LL <- (mean( v[y==0] ) + mean( v[y==1] )) / 2
-    else
-        LL <- mean( v )
-
-    drop(R1 + R2 - LL)
-}
-
 #' One-class regression objective function value
 #'
 #' Evaluates the one-class objective function value for a given model
@@ -452,7 +368,7 @@ gelnet.cv <- function( X, y, nL1, nL2, nFolds=5, a=rep(1,n), d=rep(1,p), P=diag(
     else
       { stop( "Unknown label type\ny must be a numeric vector, a 2-level factor or NULL" ) }
 
-    ## Generate a vecotr of values for the L2-norm penalty
+    ## Generate a vector of values for the L2-norm penalty
     v1 <- 1:(as.integer( nL2 / 2 ))
     if( nL2 %% 2 == 0 )
       vL2 <- 10 ^ c(rev(1-v1), v1)
