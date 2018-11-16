@@ -505,7 +505,7 @@ gelnet.oneclass <- function( X, l1, l2, d = rep(1,p), P = diag(p), m = rep(0,p),
     w <- w.init
 
     ## Run Newton's method
-    fprev <- gelnet.oneclass.obj( w, X, l1, l2, d, P, m )
+    fprev <- gelnet_oclr_obj( w, X, l1, l2, d, P, m )
     for( iter in 1:max.iter )
       {
         if( silent == FALSE )
@@ -523,10 +523,12 @@ gelnet.oneclass <- function( X, l1, l2, d = rep(1,p), P = diag(p), m = rep(0,p),
         z <- s + 1/pr
 
         ## Run coordinate descent for the resulting regression problem
-        mm <- gelnet.lin( X, z, l1, l2, a, d, P, m, iter*2, eps, w, 0, TRUE, TRUE, nonneg )
+        mm <- gelnet_lin_opt( X, z, l1, l2, a=a, d=d, P=P, m=m, max_iter = iter*2,
+                             eps=eps, w_init = w, b_init = 0, fix_bias = TRUE,
+                             silent = TRUE, nonneg=nonneg )
         w <- mm$w
 
-        f <- gelnet.oneclass.obj( w, X, l1, l2, d, P, m )
+        f <- gelnet_oclr_obj( w, X, l1, l2, d, P, m )
         if( abs(f - fprev) / abs(fprev) < eps ) break
         else fprev <- f
       }

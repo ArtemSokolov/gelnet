@@ -2,9 +2,10 @@ context( "Model training" )
 
 ## Ensures that training found the optimum by looking in the immediate
 ##  neighborhood of the solution model
-## model - a model object, as returned by, e.g., gelnet.lin()
+## model - a model object, as returned by, e.g., gelnet_lin_opt()
 ## fobj - the matching objective function to minimize
-expect_optimal <- function( model, fobj )
+## hasBias - set to TRUE if the model has a bias term that needs to be tested
+expect_optimal <- function( model, fobj, hasBias = TRUE )
 {
     ## Predefine the error message
     msg <- "Model is not optimized along component "
@@ -17,7 +18,8 @@ expect_optimal <- function( model, fobj )
     act$obj <- fobj( act$val )
 
     ## Consider the immediate neighborhood of the solution
-    for( i in 0:act$p )
+    iStart <- as.integer( !hasBias )
+    for( i in iStart:act$p )
     {
         act$objn <- fobj( perturb.gelnet(act$val, i, -0.001) )
         act$objp <- fobj( perturb.gelnet(act$val, i, 0.001) )
@@ -59,7 +61,7 @@ expect_relopt <- function( lmd, lfn )
     invisible(act$val)
 }
 
-test_that( "linear training", {
+test_that( "Linear regression training", {
     ## Preset dimensionality
     n <- 20
     p <- 50
@@ -106,7 +108,7 @@ test_that( "linear training", {
     expect_lt( ff[[4]](mm[[4]]), ff[[4]](mnn) )
 })
 
-test_that( "Logistic regression training", {
+test_that( "Binary logistic regression training", {
     ## Preset dimensionality
     n <- 20
     p <- 50
@@ -149,4 +151,44 @@ test_that( "Logistic regression training", {
     ## Test non-negativity
     mnn <- do.call( gelnet_blr_opt, c(params[[5]], list(nonneg=TRUE, silent=TRUE)) )
     purrr::map( mnn$w, expect_gte, 0 )
+})
+
+test_that( "One-class logistic regression training", {
+    ## Preset dimensionality
+    n <- 20
+    p <- 50
+
+    ## Silently trains a logistic GELnet model using the provided parameters
+    ftrain <- function( prms )
+    { do.call( gelnet.oneclass, c(prms, list(silent=TRUE)) ) }
+
+    ## Generates a model evaluator using a given set of parameters
+    fgen <- function( prms )
+    { function( mdl ) { do.call( gelnet_oclr_obj, c(mdl,prms) ) } }
+
+    ## Preset L1 and L2 penalty coefficients and generate a sequence of
+    ##   models increasing in complexity
+    set.seed(100)
+    A <- matrix( rnorm(p*p), p, p )
+    params <- list( list(l1 = 0.1, l2 = 10, X = matrix(rnorm(n*p), n, p)) )
+    params[[2]] <- c( params[[1]], list(d = runif( p )) )
+    params[[3]] <- c( params[[2]], list(P = t(A) %*% A / p) )
+    params[[4]] <- c( params[[3]], list(m = rnorm(p, sd=0.1)) )
+
+    ## Generate the models and matching objective functions
+    mm <- purrr::map( params, ftrain )
+    ff <- purrr::map( params, fgen )
+
+    ## Verify the basic model
+    expect_length( which( mm[[1]]$w != 0 ), 17 )
+    expect_equal( mm[[1]]$w[26], -0.01308364, tol=1e-5 )
+
+    ## Verify optimality of each model w.r.t. its obj. fun.
+    purrr::map2( mm, ff, expect_optimal, FALSE )
+    expect_relopt( mm, ff )
+
+    ## Test non-negativity
+    mnn <- do.call( gelnet.oneclass, c(params[[4]], list(silent=TRUE, nonneg=TRUE)) )
+    purrr::map( mnn$w, expect_gte, 0 )
+    expect_lt( ff[[4]](mm[[4]]), ff[[4]](mnn) )
 })
