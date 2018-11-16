@@ -150,3 +150,8 @@ gelnet_blr_opt <- function(X, y, l1, l2, max_iter = 100L, eps = 1e-5, silent = F
     .Call('_gelnet_gelnet_blr_opt', PACKAGE = 'gelnet', X, y, l1, l2, max_iter, eps, silent, verbose, balanced, nonneg, w_init, b_init, d, P, m)
 }
 
+#' One-class logistic regression
+gelnet_oclr_opt <- function(X, l1, l2, max_iter = 100L, eps = 1e-5, silent = FALSE, verbose = FALSE, nonneg = FALSE, w_init = NULL, d = NULL, P = NULL, m = NULL) {
+    .Call('_gelnet_gelnet_oclr_opt', PACKAGE = 'gelnet', X, l1, l2, max_iter, eps, silent, verbose, nonneg, w_init, d, P, m)
+}
+

@@ -496,3 +496,57 @@ List gelnet_blr_opt( arma::mat X, arma::Col<int> y, double l1, double l2,
   return List::create( Named("w") = w, Named("b") = b );
 }
 
+//' One-class logistic regression
+// [[Rcpp::export]]
+List gelnet_oclr_opt( arma::mat X, double l1, double l2, int max_iter = 100,
+		      double eps = 1e-5, bool silent = false, bool verbose = false,
+		      bool nonneg = false,
+		      Nullable<NumericVector> w_init = R_NilValue,
+		      Nullable<NumericVector> d = R_NilValue,
+		      Nullable<NumericMatrix> P = R_NilValue,
+		      Nullable<NumericVector> m = R_NilValue )
+{
+  // Retrieve data dimensionality
+  int p = X.n_cols;
+
+  // Initialize the model (using provided values if available)
+  arma::vec w;
+  if( w_init.isNotNull() ) w = as<arma::vec>(w_init);
+  else w.zeros(p);
+
+  // Compute the initial fits and objective function value
+  double fprev = gelnet_oclr_obj( w, X, l1, l2, d, P, m );
+  if( !silent ) Rcout<<"Initial objective value: "<<fprev<<std::endl;
+
+  // Main optimization loop
+  int iter; double f = 0.0;
+  for( iter = 1; iter <= max_iter; ++iter )
+    {
+      if( !silent && verbose )
+	Rcout<<"Iteration "<<iter<<": "<<"f = "<<fprev<<std::endl;
+
+      // Compute the current fit
+      arma::vec s = X*w;
+      arma::vec pr = 1 / (1 + exp(-s));
+      arma::vec a = pr % (1-pr);
+      arma::vec z = s + 1/pr;
+
+      // Perform coordinate descent
+      int nIter = iter * 2;
+      NumericVector w0 = wrap(w);
+      NumericVector a0 = wrap(a);
+      Nullable<double> b0 = wrap(0.0);
+      List newModel = gelnet_lin_opt( X, z, l1, l2, nIter, eps, true,
+				      true, false, nonneg, w0, b0, a0, d, P, m );
+
+      // Retrieve the model
+      w = as<arma::vec>( newModel["w"] );
+
+      // Compute the objective function value and check the stopping criterion
+      f = gelnet_oclr_obj( w, X, l1, l2, d, P, m );
+      if( fabs( f - fprev ) / fabs( fprev ) < eps ) break;
+      else fprev = f;
+    }
+
+  return List::create( Named("w") = w );
+}

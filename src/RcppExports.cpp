@@ -114,6 +114,28 @@ BEGIN_RCPP
     return rcpp_result_gen;
 END_RCPP
 }
+// gelnet_oclr_opt
+List gelnet_oclr_opt(arma::mat X, double l1, double l2, int max_iter, double eps, bool silent, bool verbose, bool nonneg, Nullable<NumericVector> w_init, Nullable<NumericVector> d, Nullable<NumericMatrix> P, Nullable<NumericVector> m);
+RcppExport SEXP _gelnet_gelnet_oclr_opt(SEXP XSEXP, SEXP l1SEXP, SEXP l2SEXP, SEXP max_iterSEXP, SEXP epsSEXP, SEXP silentSEXP, SEXP verboseSEXP, SEXP nonnegSEXP, SEXP w_initSEXP, SEXP dSEXP, SEXP PSEXP, SEXP mSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< arma::mat >::type X(XSEXP);
+    Rcpp::traits::input_parameter< double >::type l1(l1SEXP);
+    Rcpp::traits::input_parameter< double >::type l2(l2SEXP);
+    Rcpp::traits::input_parameter< int >::type max_iter(max_iterSEXP);
+    Rcpp::traits::input_parameter< double >::type eps(epsSEXP);
+    Rcpp::traits::input_parameter< bool >::type silent(silentSEXP);
+    Rcpp::traits::input_parameter< bool >::type verbose(verboseSEXP);
+    Rcpp::traits::input_parameter< bool >::type nonneg(nonnegSEXP);
+    Rcpp::traits::input_parameter< Nullable<NumericVector> >::type w_init(w_initSEXP);
+    Rcpp::traits::input_parameter< Nullable<NumericVector> >::type d(dSEXP);
+    Rcpp::traits::input_parameter< Nullable<NumericMatrix> >::type P(PSEXP);
+    Rcpp::traits::input_parameter< Nullable<NumericVector> >::type m(mSEXP);
+    rcpp_result_gen = Rcpp::wrap(gelnet_oclr_opt(X, l1, l2, max_iter, eps, silent, verbose, nonneg, w_init, d, P, m));
+    return rcpp_result_gen;
+END_RCPP
+}
 
 static const R_CallMethodDef CallEntries[] = {
     {"_gelnet_gelnet_oclr_obj", (DL_FUNC) &_gelnet_gelnet_oclr_obj, 7},
@@ -121,6 +143,7 @@ static const R_CallMethodDef CallEntries[] = {
     {"_gelnet_gelnet_blr_obj", (DL_FUNC) &_gelnet_gelnet_blr_obj, 10},
     {"_gelnet_gelnet_lin_opt", (DL_FUNC) &_gelnet_gelnet_lin_opt, 16},
     {"_gelnet_gelnet_blr_opt", (DL_FUNC) &_gelnet_gelnet_blr_opt, 15},
+    {"_gelnet_gelnet_oclr_opt", (DL_FUNC) &_gelnet_gelnet_oclr_opt, 12},
     {NULL, NULL, 0}
 };
 
