@@ -150,7 +150,36 @@ gelnet_blr_opt <- function(X, y, l1, l2, max_iter = 100L, eps = 1e-5, silent = F
     .Call('_gelnet_gelnet_blr_opt', PACKAGE = 'gelnet', X, y, l1, l2, max_iter, eps, silent, verbose, balanced, nonneg, w_init, b_init, d, P, m)
 }
 
-#' One-class logistic regression
+#' GELnet for one-class logistic regression
+#'
+#' Constructs a GELnet model for one-class regression using the Newton method.
+#'
+#' The function optimizes the following objective:
+#' \deqn{ -\frac{1}{n} \sum_i s_i - \log( 1 + \exp(s_i) ) + R(w) }
+#'  where
+#' \deqn{ s_i = w^T x_i }
+#' \deqn{ R(w) = \lambda_1 \sum_j d_j |w_j| + \frac{\lambda_2}{2} (w-m)^T P (w-m) }
+#' The method operates by constructing iteratively re-weighted least squares approximations
+#' of the log-likelihood loss function and then calling the linear regression routine
+#' to solve those approximations. The least squares approximations are obtained via the Taylor series
+#' expansion about the current parameter estimates.
+#'
+#' @param X n-by-p matrix of n samples in p dimensions
+#' @param l1 coefficient for the L1-norm penalty
+#' @param l2 coefficient for the L2-norm penalty
+#' @param d p-by-1 vector of feature weights
+#' @param P p-by-p feature association penalty matrix
+#' @param m p-by-1 vector of translation coefficients
+#' @param max.iter maximum number of iterations
+#' @param eps convergence precision
+#' @param w.init initial parameter estimate for the weights
+#' @param silent set to TRUE to suppress run-time output to stdout (default: FALSE)
+#' @param nonneg set to TRUE to enforce non-negativity constraints on the weights (default: FALSE )
+#' @return A list with one element:
+#' \describe{
+#'   \item{w}{p-by-1 vector of p model weights}
+#' }
+#' @export
 gelnet_oclr_opt <- function(X, l1, l2, max_iter = 100L, eps = 1e-5, silent = FALSE, verbose = FALSE, nonneg = FALSE, w_init = NULL, d = NULL, P = NULL, m = NULL) {
     .Call('_gelnet_gelnet_oclr_opt', PACKAGE = 'gelnet', X, l1, l2, max_iter, eps, silent, verbose, nonneg, w_init, d, P, m)
 }

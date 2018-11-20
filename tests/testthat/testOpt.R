@@ -160,7 +160,7 @@ test_that( "One-class logistic regression training", {
 
     ## Silently trains a logistic GELnet model using the provided parameters
     ftrain <- function( prms )
-    { do.call( gelnet.oneclass, c(prms, list(silent=TRUE)) ) }
+    { do.call( gelnet_oclr_opt, c(prms, list(silent=TRUE)) ) }
 
     ## Generates a model evaluator using a given set of parameters
     fgen <- function( prms )
