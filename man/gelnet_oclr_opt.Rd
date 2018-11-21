@@ -4,9 +4,9 @@
 \alias{gelnet_oclr_opt}
 \title{GELnet for one-class logistic regression}
 \usage{
-gelnet_oclr_opt(X, l1, l2, max_iter = 100L, eps = 1e-05,
-  silent = FALSE, verbose = FALSE, nonneg = FALSE, w_init = NULL,
-  d = NULL, P = NULL, m = NULL)
+gelnet_oclr_opt(X, l1, l2, max_iter = 100L, eps = 1e-05, silent = FALSE,
+  verbose = FALSE, nonneg = FALSE, w_init = NULL, d = NULL, P = NULL,
+  m = NULL)
 }
 \arguments{
 \item{X}{n-by-p matrix of n samples in p dimensions}

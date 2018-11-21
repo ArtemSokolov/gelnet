@@ -5,9 +5,9 @@
 \title{GELnet for linear regression}
 \usage{
 gelnet_lin_opt(X, z, l1, l2, max_iter = 100L, eps = 1e-05,
-  fix_bias = FALSE, silent = FALSE, verbose = FALSE,
-  nonneg = FALSE, w_init = NULL, b_init = NULL, a = NULL,
-  d = NULL, P = NULL, m = NULL)
+  fix_bias = FALSE, silent = FALSE, verbose = FALSE, nonneg = FALSE,
+  w_init = NULL, b_init = NULL, a = NULL, d = NULL, P = NULL,
+  m = NULL)
 }
 \arguments{
 \item{X}{n-by-p matrix of n samples in p dimensions}

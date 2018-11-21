@@ -4,8 +4,8 @@
 \alias{gelnet_blr_obj}
 \title{Logistic regression objective function value}
 \usage{
-gelnet_blr_obj(w, b, X, y, l1, l2, balanced = FALSE, d = NULL,
-  P = NULL, m = NULL)
+gelnet_blr_obj(w, b, X, y, l1, l2, balanced = FALSE, d = NULL, P = NULL,
+  m = NULL)
 }
 \arguments{
 \item{w}{p-by-1 vector of model weights}

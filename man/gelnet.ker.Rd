@@ -4,9 +4,9 @@
 \alias{gelnet.ker}
 \title{Kernel models for linear regression, binary classification and one-class problems.}
 \usage{
-gelnet.ker(K, y, lambda, a, max.iter = 100, eps = 1e-05,
-  v.init = rep(0, nrow(K)), b.init = 0, fix.bias = FALSE,
-  silent = FALSE, balanced = FALSE)
+gelnet.ker(K, y, lambda, a, max.iter = 100, eps = 1e-05, v.init = rep(0,
+  nrow(K)), b.init = 0, fix.bias = FALSE, silent = FALSE,
+  balanced = FALSE)
 }
 \arguments{
 \item{K}{n-by-n matrix of pairwise kernel values over a set of n samples}
