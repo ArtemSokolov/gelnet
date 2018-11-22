@@ -22,30 +22,36 @@
 #'
 #' @param X n-by-p matrix of n samples in p dimensions
 #' @param y n-by-1 vector of response values. Must be numeric vector for regression, factor with 2 levels for binary classification, or NULL for a one-class task.
+#' @param a n-by-1 vector of sample weights (regression only)
 #' @param nonneg set to TRUE to enforce non-negativity constraints on the weights (default: FALSE )
 #' @param balanced boolean specifying whether the balanced model is being trained (binary classification only) (default: FALSE)
 #' @return A GELnet model definition
 #' @export
-gelnet <- function( X, y=NULL, nonneg=FALSE, balanced=FALSE )
+gelnet <- function( X, y=NULL, a=NULL, nonneg=FALSE, balanced=FALSE )
 {
     ## Check argument dimensionality
     if( nrow(X) != length(y) )
         stop( "Number of labels does not match the number of samples" )
 
     ## Create a bare-bones model
-    mdl <- list( X=X, nonneg=nonneg )
+    mdl <- list( X=X, nonneg=nonneg, l1=0, l2=0 )
     class( mdl ) <- "geldef"
 
     ## One-class
     if( is.null(y) )
     {
         if( balanced ) warning( "Ignoring balanced setting in one-class models" )
+        if( !is.null(a) ) warning( "Ignoring sample weights in one-class models" )
+        mdl$type <- "one-class"
     }
 
     ## Binary classification
     else if( is.factor(y) || is.character(y) )
     {
-        y <- factor(y)		## Handles the non-factor character vectors
+        if( !is.null(a) )
+            warning( "Ignoring sample weights in binary classification models" )
+
+        y <- factor(y)		## Handles non-factor character vectors
 
         if( nlevels(y) == 1 )
             stop( "All labels are identical\n  Consider training a one-class model instead" )
@@ -56,6 +62,7 @@ gelnet <- function( X, y=NULL, nonneg=FALSE, balanced=FALSE )
         ## Convert the labels to {0,1}
         mdl$y <- as.integer( y == levels(y)[1] )
         mdl$balanced <- balanced
+        mdl$type <- "binary"
     }
 
     ## Linear regression
@@ -63,6 +70,8 @@ gelnet <- function( X, y=NULL, nonneg=FALSE, balanced=FALSE )
     {
         if( balanced ) warning( "Ignoring balanced setting in linear regression models" )
         mdl$y <- y
+        if( !is.null(a) ) mdl$a <- a
+        mdl$type <- "regression"
     }
 
     ## Other
@@ -84,8 +93,27 @@ gelnet <- function( X, y=NULL, nonneg=FALSE, balanced=FALSE )
 #' @return A regularizer definition that can be combined with a model definition using + operator
 gel_L1 <- function( l1, d=NULL )
 {
+    if( l1 < 0 ) stop("L1 coefficient must be non-negative")
     rglz <- list( l1=l1, d=d )
     class(rglz) <- "geldefL1"
+    rglz
+}
+
+#' L2 regularizer for GELnet models
+#'
+#' Defines an L2 regularizer with optional feature-feature penalties and translation coefficients
+#'
+#' The L2 regularizer term is define by
+#' \deqn{ R2(w) = \frac{\lambda_2}{2} (w-m)^T P (w-m) }
+#'
+#' @param l2 coefficient for the L2-norm penalty
+#' @param P p-by-p feature association penalty matrix
+#' @param m p-by-1 vector of translation coefficients
+gel_L2 <- function( l2, P=NULL, m=NULL )
+{
+    if( l2 < 0 ) stop("L2 coefficient must be non-negative")
+    rglz <- list( l2=l2, P=P, m=m )
+    class(rglz) <- "geldefL2"
     rglz
 }
 
@@ -98,11 +126,11 @@ gel_L1 <- function( l1, d=NULL )
 gelnetComposite <- function( term, ... )
     { UseMethod( "gelnetComposite" ) }
 
-## Composite function for gel_L1()
+## Default behavior for term composition
 ## Not exported
-gelnetComposite.geldefL1 <- function( rglz, mdl )
+gelnetComposite.default <- function( term, mdl )
 {
-    mdl$l1 <- rglz$l1
-    mdl$d <- rglz$d
+    for( i in names(term) )
+        mdl[[i]] <- term[[i]]
     mdl
 }
