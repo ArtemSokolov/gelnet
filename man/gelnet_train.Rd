@@ -4,10 +4,11 @@
 \alias{gelnet_train}
 \title{GELnet for linear regression, binary classification and one-class problems.}
 \usage{
-gelnet_train(X, y, l1, l2, nFeats = NULL, a = NULL, d = NULL, P = NULL,
-  m = NULL, max_iter = 100, eps = 1e-05, w_init = rep(0, p),
-  b_init = NULL, fix_bias = FALSE, silent = FALSE, verbose = FALSE,
-  balanced = FALSE, nonneg = FALSE)
+gelnet_train(X, y, l1, l2, nFeats = NULL, a = NULL, d = NULL,
+  P = NULL, m = NULL, max_iter = 100, eps = 1e-05,
+  w_init = rep(0, p), b_init = NULL, fix_bias = FALSE,
+  silent = FALSE, verbose = FALSE, balanced = FALSE,
+  nonneg = FALSE)
 }
 \arguments{
 \item{X}{n-by-p matrix of n samples in p dimensions}

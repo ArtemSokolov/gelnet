@@ -4,9 +4,10 @@
 \alias{gelnet_blr_opt}
 \title{GELnet for logistic regression}
 \usage{
-gelnet_blr_opt(X, y, l1, l2, max_iter = 100L, eps = 1e-05, silent = FALSE,
-  verbose = FALSE, balanced = FALSE, nonneg = FALSE, w_init = NULL,
-  b_init = NULL, d = NULL, P = NULL, m = NULL)
+gelnet_blr_opt(X, y, l1, l2, max_iter = 100L, eps = 1e-05,
+  silent = FALSE, verbose = FALSE, balanced = FALSE,
+  nonneg = FALSE, w_init = NULL, b_init = NULL, d = NULL,
+  P = NULL, m = NULL)
 }
 \arguments{
 \item{X}{n-by-p matrix of n samples in p dimensions}

@@ -2,37 +2,16 @@
 % Please edit documentation in R/def.R
 \name{gelnet}
 \alias{gelnet}
-\title{Defines a GELnet model for linear regression, binary classification or one-class problem.}
+\title{GELnet model definition}
 \usage{
-gelnet(X, y = NULL, nonneg = FALSE, balanced = FALSE)
+gelnet(X)
 }
 \arguments{
 \item{X}{n-by-p matrix of n samples in p dimensions}
-
-\item{y}{n-by-1 vector of response values. Must be numeric vector for regression, factor with 2 levels for binary classification, or NULL for a one-class task.}
-
-\item{nonneg}{set to TRUE to enforce non-negativity constraints on the weights (default: FALSE )}
-
-\item{balanced}{boolean specifying whether the balanced model is being trained (binary classification only) (default: FALSE)}
 }
 \value{
 A GELnet model definition
 }
 \description{
-Infers the problem type and constructs the appropriate GELnet model definition.
-}
-\details{
-The method determines the problem type from the labels argument y.
-If y is a numeric vector, then a regression model is defined which optimizes the following objective function:
-\deqn{ \frac{1}{2n} \sum_i a_i (y_i - (w^T x_i + b))^2 + R(w) }
-
-If y is a factor with two levels, then the function returns a binary classification model definition, which optimizes the following objective function:
-\deqn{ -\frac{1}{n} \sum_i y_i s_i - \log( 1 + \exp(s_i) ) + R(w) }
- where
-\deqn{ s_i = w^T x_i + b }
-
-Finally, if no labels are provided (y == NULL), then a one-class model is constructed using the following objective function:
-\deqn{ -\frac{1}{n} \sum_i s_i - \log( 1 + \exp(s_i) ) + R(w) }
- where
-\deqn{ s_i = w^T x_i }
+Starting building block for defining a GELnet model
 }
