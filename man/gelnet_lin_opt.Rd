@@ -18,13 +18,21 @@ gelnet_lin_opt(X, z, l1, l2, max_iter = 100L, eps = 1e-05,
 
 \item{l2}{coefficient for the L2-norm penalty}
 
+\item{max_iter}{maximum number of iterations}
+
 \item{eps}{convergence precision}
+
+\item{fix_bias}{set to TRUE to prevent the bias term from being updated (default: FALSE)}
 
 \item{silent}{set to TRUE to suppress run-time output; overwrites verbose (default: FALSE)}
 
 \item{verbose}{set to TRUE to see extra output; is overwritten by silent (default: FALSE)}
 
 \item{nonneg}{set to TRUE to enforce non-negativity constraints on the weights (default: FALSE )}
+
+\item{w_init}{initial parameter estimate for the weights}
+
+\item{b_init}{initial parameter estimate for the bias term}
 
 \item{a}{n-by-1 vector of sample weights}
 
@@ -33,14 +41,6 @@ gelnet_lin_opt(X, z, l1, l2, max_iter = 100L, eps = 1e-05,
 \item{P}{p-by-p feature association penalty matrix}
 
 \item{m}{p-by-1 vector of translation coefficients}
-
-\item{max.iter}{maximum number of iterations}
-
-\item{w.init}{initial parameter estimate for the weights}
-
-\item{b.init}{initial parameter estimate for the bias term}
-
-\item{fix.bias}{set to TRUE to prevent the bias term from being updated (default: FALSE)}
 }
 \value{
 A list with two elements:

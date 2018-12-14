@@ -98,11 +98,11 @@ gelnet_blr_obj <- function(w, b, X, y, l1, l2, balanced = FALSE, d = NULL, P = N
 #' @param d p-by-1 vector of feature weights
 #' @param P p-by-p feature association penalty matrix
 #' @param m p-by-1 vector of translation coefficients
-#' @param max.iter maximum number of iterations
+#' @param max_iter maximum number of iterations
 #' @param eps convergence precision
-#' @param w.init initial parameter estimate for the weights
-#' @param b.init initial parameter estimate for the bias term
-#' @param fix.bias set to TRUE to prevent the bias term from being updated (default: FALSE)
+#' @param w_init initial parameter estimate for the weights
+#' @param b_init initial parameter estimate for the bias term
+#' @param fix_bias set to TRUE to prevent the bias term from being updated (default: FALSE)
 #' @param silent set to TRUE to suppress run-time output; overwrites verbose (default: FALSE)
 #' @param verbose set to TRUE to see extra output; is overwritten by silent (default: FALSE)
 #' @param nonneg set to TRUE to enforce non-negativity constraints on the weights (default: FALSE )
@@ -132,10 +132,10 @@ gelnet_lin_opt <- function(X, z, l1, l2, max_iter = 100L, eps = 1e-5, fix_bias =
 #' @param d p-by-1 vector of feature weights
 #' @param P p-by-p feature association penalty matrix
 #' @param m p-by-1 vector of translation coefficients
-#' @param max.iter maximum number of iterations
+#' @param max_iter maximum number of iterations
 #' @param eps convergence precision
-#' @param w.init initial parameter estimate for the weights
-#' @param b.init initial parameter estimate for the bias term
+#' @param w_init initial parameter estimate for the weights
+#' @param b_init initial parameter estimate for the bias term
 #' @param silent set to TRUE to suppress run-time output to stdout (default: FALSE)
 #' @param balanced boolean specifying whether the balanced model is being trained
 #' @param nonneg set to TRUE to enforce non-negativity constraints on the weights (default: FALSE )
@@ -170,9 +170,9 @@ gelnet_blr_opt <- function(X, y, l1, l2, max_iter = 100L, eps = 1e-5, silent = F
 #' @param d p-by-1 vector of feature weights
 #' @param P p-by-p feature association penalty matrix
 #' @param m p-by-1 vector of translation coefficients
-#' @param max.iter maximum number of iterations
+#' @param max_iter maximum number of iterations
 #' @param eps convergence precision
-#' @param w.init initial parameter estimate for the weights
+#' @param w_init initial parameter estimate for the weights
 #' @param silent set to TRUE to suppress run-time output to stdout (default: FALSE)
 #' @param nonneg set to TRUE to enforce non-negativity constraints on the weights (default: FALSE )
 #' @return A list with one element:

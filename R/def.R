@@ -67,14 +67,15 @@ model_blr <- function( y, nonneg=FALSE, balanced=FALSE )
 #' @param y n-by-1 numeric vector of response values
 #' @param a n-by-1 vector of sample weights
 #' @param nonneg set to TRUE to enforce non-negativity constraints on the weights (default: FALSE)
+#' @param fix_bias set to TRUE to prevent the bias term from being updated (default: FALSE)
 #' @return A GELnet task definition that can be combined with gelnet() output
 #' @export
-model_lin <- function( y, a=NULL, nonneg=FALSE )
+model_lin <- function( y, a=NULL, nonneg=FALSE, fix_bias=FALSE )
 {
     if( !is.numeric(y) ) stop( "Labels must be numeric" )
     if( !is.null(a) && length(a) != length(y) )
         stop( "The number of sample weights must match the number of labels" )
-    structure( list(y=y, a=a, nonneg=nonneg), class = "taskdef_sv" )
+    structure( list(y=y, a=a, nonneg=nonneg, fix_bias=fix_bias), class = "taskdef_sv" )
 }
 
 #' L1 regularizer

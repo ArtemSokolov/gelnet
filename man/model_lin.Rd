@@ -4,7 +4,7 @@
 \alias{model_lin}
 \title{Linear regression}
 \usage{
-model_lin(y, a = NULL, nonneg = FALSE)
+model_lin(y, a = NULL, nonneg = FALSE, fix_bias = FALSE)
 }
 \arguments{
 \item{y}{n-by-1 numeric vector of response values}
@@ -12,6 +12,8 @@ model_lin(y, a = NULL, nonneg = FALSE)
 \item{a}{n-by-1 vector of sample weights}
 
 \item{nonneg}{set to TRUE to enforce non-negativity constraints on the weights (default: FALSE)}
+
+\item{fix_bias}{set to TRUE to prevent the bias term from being updated (default: FALSE)}
 }
 \value{
 A GELnet task definition that can be combined with gelnet() output

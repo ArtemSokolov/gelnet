@@ -18,6 +18,8 @@ gelnet_blr_opt(X, y, l1, l2, max_iter = 100L, eps = 1e-05,
 
 \item{l2}{coefficient for the L2-norm penalty}
 
+\item{max_iter}{maximum number of iterations}
+
 \item{eps}{convergence precision}
 
 \item{silent}{set to TRUE to suppress run-time output to stdout (default: FALSE)}
@@ -26,17 +28,15 @@ gelnet_blr_opt(X, y, l1, l2, max_iter = 100L, eps = 1e-05,
 
 \item{nonneg}{set to TRUE to enforce non-negativity constraints on the weights (default: FALSE )}
 
+\item{w_init}{initial parameter estimate for the weights}
+
+\item{b_init}{initial parameter estimate for the bias term}
+
 \item{d}{p-by-1 vector of feature weights}
 
 \item{P}{p-by-p feature association penalty matrix}
 
 \item{m}{p-by-1 vector of translation coefficients}
-
-\item{max.iter}{maximum number of iterations}
-
-\item{w.init}{initial parameter estimate for the weights}
-
-\item{b.init}{initial parameter estimate for the bias term}
 }
 \value{
 A list with two elements:

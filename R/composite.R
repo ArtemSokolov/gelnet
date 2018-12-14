@@ -62,5 +62,7 @@ gelnetComposite.gelinit <- function( term, mdl )
 {
     if( !is.null(term$w_init) && length(term$w_init) != ncol(mdl$X) )
         stop( "The number of weights provided to the initializer does not match the number of weights in the model" )
+    if( is.null(mdl$y) && !is.null(term$b_init) )
+        stop( "One-class model does not include a bias term" )
     UseMethod( "gelnetComposite", NULL )
 }
