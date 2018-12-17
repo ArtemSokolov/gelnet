@@ -40,7 +40,7 @@ gelnet_train <- function( modeldef, max_iter = 100L, eps = 1e-5, silent=FALSE, v
         if( !silent ) cat( "Training a binary logistic regression model\n" )
         
         ## Convert the labels to {0,1}
-        if( !silent ) cat( "Treating", levels(params$y)[1], "as the positive class\n" )
+        if( verbose ) cat( "Treating", levels(params$y)[1], "as the positive class\n" )
         params$y <- as.integer( params$y == levels(params$y)[1] )
         
         do.call( gelnet_blr_opt, params )

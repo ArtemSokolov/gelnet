@@ -164,8 +164,23 @@ test_that( "Binary logistic regression training", {
     expect_lt( abs(mm[[5]]$b), abs(mm[[4]]$b) )
 
     ## Test non-negativity
-    mnn <- do.call( gelnet_blr_opt, c(params[[5]], list(nonneg=TRUE, silent=TRUE)) )
-    purrr::map( mnn$w, expect_gte, 0 )
+    mm[[6]] <- do.call( gelnet_blr_opt, c(params[[5]], list(nonneg=TRUE, silent=TRUE)) )
+    purrr::map( mm[[6]]$w, expect_gte, 0 )
+    expect_lt( ff[[5]](mm[[5]]), ff[[5]](mm[[6]]) )
+    
+    ## Compose model definitions using the "grammar of modeling"
+    dd <- list()
+    dd[[1]] <- gelnet(params[[1]]$X) + model_blr(factor(params[[1]]$y, c(1,0))) +
+        rglz_L1( params[[1]]$l1 ) + rglz_L2( params[[1]]$l2 )
+    dd[[2]] <- dd[[1]] + rglz_L1( params[[2]]$l1, params[[2]]$d )
+    dd[[3]] <- dd[[2]] + rglz_L2( params[[3]]$l2, params[[3]]$P )
+    dd[[4]] <- dd[[3]] + rglz_L2( params[[4]]$l2, params[[4]]$P, params[[4]]$m )
+    dd[[5]] <- dd[[4]] + model_blr( factor(params[[5]]$y, c(1,0)), balanced=TRUE )
+    dd[[6]] <- dd[[5]] + model_blr( factor(params[[5]]$y, c(1,0)), TRUE, TRUE )
+
+    ## Train based on model definitions
+    mdls <- purrr::map( dd, gelnet_train, silent=TRUE )
+    purrr::map2( mm, mdls, expect_equal )
 })
 
 test_that( "One-class logistic regression training", {
