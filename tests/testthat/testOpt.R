@@ -107,12 +107,14 @@ test_that( "Linear regression training", {
     purrr::map( mm[[6]]$w, expect_gte, 0 )
     expect_lt( ff[[4]](mm[[4]]), ff[[4]](mm[[6]]) )
 
-    ## Compose definitions using "grammar of modeling"
+    ## Compose model definitions using the "grammar of modeling"
     dd <- list()
-    dd[[1]] <- gelnet( params[[1]]$X ) + model_lin( params[[1]]$z ) + gel_L1( params[[1]]$l1 ) + gel_L2( params[[1]]$l2 )
-    dd[[2]] <- dd[[1]] + model_lin( params[[2]]$z, params[[2]]$a ) + gel_L1( params[[2]]$l1, params[[2]]$d )
-    dd[[3]] <- dd[[2]] + gel_L2( params[[3]]$l2, params[[3]]$P )
-    dd[[4]] <- dd[[3]] + gel_L2( params[[4]]$l2, params[[4]]$P, params[[4]]$m )
+    dd[[1]] <- gelnet( params[[1]]$X ) + model_lin( params[[1]]$z ) +
+        rglz_L1( params[[1]]$l1 ) + rglz_L2( params[[1]]$l2 )
+    dd[[2]] <- dd[[1]] + model_lin( params[[2]]$z, params[[2]]$a ) +
+        rglz_L1( params[[2]]$l1, params[[2]]$d )
+    dd[[3]] <- dd[[2]] + rglz_L2( params[[3]]$l2, params[[3]]$P )
+    dd[[4]] <- dd[[3]] + rglz_L2( params[[4]]$l2, params[[4]]$P, params[[4]]$m )
     dd[[5]] <- dd[[4]] + model_lin( params[[4]]$z, params[[4]]$a, fix_bias=TRUE )
     dd[[6]] <- dd[[4]] + model_lin( params[[4]]$z, params[[4]]$a, nonneg=TRUE )
 

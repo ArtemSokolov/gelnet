@@ -89,7 +89,7 @@ model_lin <- function( y, a=NULL, nonneg=FALSE, fix_bias=FALSE )
 #' @param d p-by-1 vector of feature weights
 #' @return A regularizer definition that can be combined with a model definition using + operator
 #' @export
-gel_L1 <- function( l1, d=NULL )
+rglz_L1 <- function( l1, d=NULL )
 {
     if( l1 < 0 ) stop("L1 coefficient must be non-negative")
     rglz <- list( l1=l1, d=d )
@@ -109,7 +109,7 @@ gel_L1 <- function( l1, d=NULL )
 #' @param m p-by-1 vector of translation coefficients
 #' @return A regularizer definition that can be combined with a model definition using + operator
 #' @export
-gel_L2 <- function( l2, P=NULL, m=NULL )
+rglz_L2 <- function( l2, P=NULL, m=NULL )
 {
     if( l2 < 0 ) stop("L2 coefficient must be non-negative")
     if( !is.null(P) && nrow(P) != ncol(P) ) stop("Penalty matrix must be square")
