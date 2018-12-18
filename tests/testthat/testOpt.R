@@ -218,7 +218,19 @@ test_that( "One-class logistic regression training", {
     expect_relopt( mm, ff )
 
     ## Test non-negativity
-    mnn <- do.call( gelnet_oclr_opt, c(params[[4]], list(silent=TRUE, nonneg=TRUE)) )
-    purrr::map( mnn$w, expect_gte, 0 )
-    expect_lt( ff[[4]](mm[[4]]), ff[[4]](mnn) )
+    mm[[5]] <- do.call( gelnet_oclr_opt, c(params[[4]], list(silent=TRUE, nonneg=TRUE)) )
+    purrr::map( mm[[5]]$w, expect_gte, 0 )
+    expect_lt( ff[[4]](mm[[4]]), ff[[4]](mm[[5]]) )
+
+    ## Compose model definitions using the "grammar of modeling"
+    dd <- list()
+    dd[[1]] <- gelnet( params[[1]]$X ) + rglz_L1( params[[1]]$l1 ) + rglz_L2( params[[2]]$l2 )
+    dd[[2]] <- dd[[1]] + rglz_L1( params[[2]]$l1, params[[2]]$d )
+    dd[[3]] <- dd[[2]] + rglz_L2( params[[3]]$l2, params[[3]]$P )
+    dd[[4]] <- dd[[3]] + rglz_L2( params[[4]]$l2, params[[4]]$P, params[[4]]$m )
+    dd[[5]] <- dd[[4]] + model_oclr(TRUE)
+
+    ## Train based on model definitions
+    mdls <- purrr::map( dd, gelnet_train, silent=TRUE )
+    purrr::map2( mm, mdls, expect_equal )
 })
