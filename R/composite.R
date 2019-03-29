@@ -45,6 +45,14 @@ gelnetComposite.rglzdef_L1 <- function( term, mdl )
     UseMethod( "gelnetComposite", NULL )
 }
 
+## Composition with the alternative L1 regularizer
+gelnetComposite.rglzdef_nf <- function( term, mdl )
+{
+    if( term$nFeats > ncol(mdl$X) )
+        stop( "Requested number of features exceeds data dimensionality" )
+    NextMethod()
+}
+
 ## Composition with L2 regularizer
 ## Not exported
 gelnetComposite.rglzdef_L2 <- function( term, mdl )

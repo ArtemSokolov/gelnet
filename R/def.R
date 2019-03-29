@@ -109,7 +109,9 @@ rglz_L1 <- function( l1, d=NULL )
 #' @export
 rglz_nf <- function( nFeats, d=NULL )
 {
-    
+    if( nFeats <= 0 )
+        stop( "Requested number of features must be non-negative" )
+    structure( list(nFeats=nFeats, d=d), class = c("rglzdef_nf", "rglzdef_L1") )
 }
 
 #' L2 regularizer
