@@ -2,7 +2,7 @@
 % Please edit documentation in R/gelnet.R
 \name{gelnet_train}
 \alias{gelnet_train}
-\title{Trains a GELNET model}
+\title{Trains a GELnet model}
 \usage{
 gelnet_train(modeldef, max_iter = 100L, eps = 1e-05, silent = FALSE,
   verbose = FALSE)

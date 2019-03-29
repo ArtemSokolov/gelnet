@@ -1,0 +1,21 @@
+reference:
+  - title: Model definition
+    contents:
+      - gelnet
+      - +.geldef
+      - starts_with("model")
+      - starts_with("rglz")
+      - gel_init
+  - title: Model training
+    contents:
+      - gelnet_train
+  - title: Objective functions
+    contents:
+      - ends_with("obj")
+  - title: Optimizers
+    contents:
+      - ends_with("opt")
+  - title: Miscellaneous
+    contents:
+      - starts_with("adj")
+      - perturb.gelnet

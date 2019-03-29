@@ -2,7 +2,7 @@
 % Please edit documentation in R/RcppExports.R
 \name{gelnet_blr_obj}
 \alias{gelnet_blr_obj}
-\title{Logistic regression objective function value}
+\title{Binary logistic regression objective function}
 \usage{
 gelnet_blr_obj(w, b, X, y, l1, l2, balanced = FALSE, d = NULL,
   P = NULL, m = NULL)

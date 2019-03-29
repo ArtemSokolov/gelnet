@@ -2,7 +2,7 @@
 % Please edit documentation in R/RcppExports.R
 \name{gelnet_lin_opt}
 \alias{gelnet_lin_opt}
-\title{GELnet for linear regression}
+\title{GELnet optimizer for linear regression}
 \usage{
 gelnet_lin_opt(X, z, l1, l2, max_iter = 100L, eps = 1e-05,
   fix_bias = FALSE, silent = FALSE, verbose = FALSE,

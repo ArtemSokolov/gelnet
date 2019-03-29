@@ -2,7 +2,7 @@
 ##
 ## by Artem Sokolov
 
-#' Trains a GELNET model
+#' Trains a GELnet model
 #'
 #' Trains a model on the definition constructed by gelnet()
 #' 

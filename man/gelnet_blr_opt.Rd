@@ -2,7 +2,7 @@
 % Please edit documentation in R/RcppExports.R
 \name{gelnet_blr_opt}
 \alias{gelnet_blr_opt}
-\title{GELnet for logistic regression}
+\title{GELnet optimizer for binary logistic regression}
 \usage{
 gelnet_blr_opt(X, y, l1, l2, max_iter = 100L, eps = 1e-05,
   silent = FALSE, verbose = FALSE, balanced = FALSE,

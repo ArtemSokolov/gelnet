@@ -84,7 +84,7 @@ double gelnet_blr_obj_w( arma::vec w, arma::vec s, arma::Col<int> y,
   return L+R1+R2;
 }
 
-//' One-class regression objective function value
+//' One-class logistic regression objective function
 //'
 //' Evaluates the one-class objective function value for a given model
 //' See details.
@@ -126,7 +126,7 @@ double gelnet_oclr_obj( arma::vec w, arma::mat X, double l1, double l2,
 }
 
 
-//' Linear regression objective function value
+//' Linear regression objective function
 //'
 //' Evaluates the linear regression objective function value for a given model.
 //' See details.
@@ -160,7 +160,7 @@ double gelnet_lin_obj( arma::vec w, double b, arma::mat X,
   return gelnet_lin_obj_w( w, s, z, l1, l2, a, d, P, m );
 }
 
-//' Logistic regression objective function value
+//' Binary logistic regression objective function
 //'
 //' Evaluates the logistic regression objective function value for a given model.
 //' See details.
@@ -251,7 +251,7 @@ double computeCoord( arma::mat X, arma::vec z, double l1, double l2,
   return res;
 }
 
-//' GELnet for linear regression
+//' GELnet optimizer for linear regression
 //'
 //' Constructs a GELnet model for linear regression using coordinate descent.
 //'
@@ -380,7 +380,7 @@ List gelnet_lin_opt( arma::mat X, arma::vec z, double l1, double l2,
   return List::create( Named("w") = w, Named("b") = b );
 }
 
-//' GELnet for logistic regression
+//' GELnet optimizer for binary logistic regression
 //'
 //' Constructs a GELnet model for logistic regression using the Newton method.
 //'
@@ -496,7 +496,7 @@ List gelnet_blr_opt( arma::mat X, arma::Col<int> y, double l1, double l2,
   return List::create( Named("w") = w, Named("b") = b );
 }
 
-//' GELnet for one-class logistic regression
+//' GELnet optimizer for one-class logistic regression
 //'
 //' Constructs a GELnet model for one-class regression using the Newton method.
 //'

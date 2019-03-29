@@ -2,7 +2,7 @@
 % Please edit documentation in R/RcppExports.R
 \name{gelnet_oclr_opt}
 \alias{gelnet_oclr_opt}
-\title{GELnet for one-class logistic regression}
+\title{GELnet optimizer for one-class logistic regression}
 \usage{
 gelnet_oclr_opt(X, l1, l2, max_iter = 100L, eps = 1e-05,
   silent = FALSE, verbose = FALSE, nonneg = FALSE, w_init = NULL,

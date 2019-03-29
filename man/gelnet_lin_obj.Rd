@@ -2,7 +2,7 @@
 % Please edit documentation in R/RcppExports.R
 \name{gelnet_lin_obj}
 \alias{gelnet_lin_obj}
-\title{Linear regression objective function value}
+\title{Linear regression objective function}
 \usage{
 gelnet_lin_obj(w, b, X, z, l1, l2, a = NULL, d = NULL, P = NULL,
   m = NULL)

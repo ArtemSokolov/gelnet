@@ -2,7 +2,7 @@
 % Please edit documentation in R/RcppExports.R
 \name{gelnet_oclr_obj}
 \alias{gelnet_oclr_obj}
-\title{One-class regression objective function value}
+\title{One-class logistic regression objective function}
 \usage{
 gelnet_oclr_obj(w, X, l1, l2, d = NULL, P = NULL, m = NULL)
 }

@@ -97,6 +97,21 @@ rglz_L1 <- function( l1, d=NULL )
     rglz
 }
 
+#' Alternative L1 regularizer
+#'
+#' Defines an L1 regularizer that results in the desired number of non-zero feature weights
+#' 
+#' The corresponding regularization coefficient is determined through binary search
+#'
+#' @param nFeats desired number of features with non-zero weights in the model
+#' @param d p-by-1 vector of feature weights
+#' @return A regularizer definition that can be combined with a model definition using + operator
+#' @export
+rglz_nf <- function( nFeats, d=NULL )
+{
+    
+}
+
 #' L2 regularizer
 #'
 #' Defines an L2 regularizer with optional feature-feature penalties and translation coefficients
