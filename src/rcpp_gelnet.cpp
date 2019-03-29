@@ -28,6 +28,38 @@ double l2penalty( double l2, arma::vec w,
   return l2 * arma::as_scalar(w2t * w2) / 2.0;
 }
 
+// Largest meaningful value of the L1 parameter (linear regression)
+// Exported from C++ to R only
+// [[Rcpp::export]]
+double l1c_lin( arma::mat X, arma::vec z, double l2,
+		Nullable<NumericVector> a = R_NilValue,
+		Nullable<NumericVector> d = R_NilValue,
+		Nullable<NumericMatrix> P = R_NilValue,
+		Nullable<NumericVector> m = R_NilValue )
+{
+  // Retrieve data dimensionality
+  int n = X.n_rows;
+  int p = X.n_cols;
+
+  // Compute bias term estimate: sum(a*z) / sum(a)
+  arma::vec num = z; double denom = n;
+  if( a.isNotNull() ) {
+    arma::vec a_ = as<arma::vec>(a);
+    num = num % a_; denom = sum(a_);
+  }
+  double b1 = sum(num) / denom;
+  arma::vec z1 = z - b1;
+
+  // Compute offset due to translation coeffs: l2 * P %*% m
+  arma::vec ofs;
+  if( m.isNotNull() ) {
+    ofs = as<arma::vec>(m) * l2;
+    if( P.isNotNull() ) ofs = as<arma::mat>(P) * ofs;
+  }
+  else ofs.zeros(p);
+  
+}
+		
 // Worker for gelnet_lin_obj() that take pre-computed fits
 // Not exported
 double gelnet_lin_obj_w( arma::vec w, arma::vec s, arma::vec z,
