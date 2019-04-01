@@ -57,7 +57,31 @@ double l1c_lin( arma::mat X, arma::vec z, double l2,
     if( P.isNotNull() ) ofs = as<arma::mat>(P) * ofs;
   }
   else ofs.zeros(p);
-  
+
+  // Identify the largest contributor to soft threshold
+  double res = 0;
+  for( int j = 0; j < p; ++j )
+    {
+      // Scale j^th feature by the sample weights
+      arma::vec aXz = X.col(j) % z1;
+      if( a.isNotNull() ) aXz = aXz % as<arma::vec>(a);
+
+      // Apply the precomputed offset
+      double xy = mean(aXz) + ofs(j);
+
+      // Scale by feature weights (if any)
+      if( d.isNotNull() )
+	{
+	  NumericVector vd(d);
+	  xy /= vd[j];
+	}
+
+      // Compare to current largest
+      if( std::abs(xy) > res )
+	res = std::abs(xy);
+    }
+
+  return res;
 }
 		
 // Worker for gelnet_lin_obj() that take pre-computed fits
