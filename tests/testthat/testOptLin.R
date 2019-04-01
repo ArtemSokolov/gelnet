@@ -1,0 +1,72 @@
+context( "Linear regression model training" )
+
+source( "custom.R" )
+
+## Generates parameters for linear regression testing
+gen_params_lin <- function()
+{
+    ## Preset dimensionality
+    n <- 20
+    p <- 50
+
+    ## Preset L1 and L2 penalty coefficients and generate a sequence of
+    ##   models increasing in complexity
+    set.seed(100)
+    A <- matrix( rnorm(p*p), p, p )
+    params <- list( list(l1 = 0.1, l2 = 10, z = rnorm(n),
+                         X = matrix(rnorm(n*p), n, p)) )
+    params[[2]] <- c( params[[1]], list(a = runif( n ), d = runif( p )) )
+    params[[3]] <- c( params[[2]], list( P = t(A) %*% A / p ) )
+    params[[4]] <- c( params[[3]], list(m = rnorm(p, sd=0.1)) )
+    params
+}
+
+test_that( "Linear regression training", {
+    ## Silently trains a linear GELnet model using the provided parameters
+    ftrain <- function( prms )
+        do.call( gelnet_lin_opt, c(prms, list(silent=TRUE)) )
+
+    ## Generates a model evaluator using a given set of parameters
+    fgen <- function( prms )
+        { function( mdl ) { do.call( gelnet_lin_obj, c(mdl,prms) ) } }
+
+    ## Generate the models and matching objective functions
+    params <- gen_params_lin()
+    mm <- purrr::map( params, ftrain )
+    ff <- purrr::map( params, fgen )
+
+    ## Verify the basic model
+    expect_length( which( mm[[1]]$w != 0 ), 30 )
+    expect_equal( mm[[1]]$b, 0.06710631, tol=1e-5 )
+    expect_equal( mm[[1]]$w[21], 0.04986543, tol=1e-5 )
+
+    ## Verify optimality of each model w.r.t. its obj. fun.
+    purrr::map2( mm, ff, expect_optimal )
+    expect_relopt( mm, ff )
+
+    ## Test bias fixture
+    mm[[5]] <- do.call( gelnet_lin_opt, c(params[[4]], list(silent=TRUE, fix_bias=TRUE)) )
+    expect_equal( mm[[5]]$b, with(params[[4]], sum(a*z)/sum(a)) )
+    expect_lt( ff[[4]](mm[[4]]), ff[[4]](mm[[5]]) )
+
+    ## Test non-negativity
+    mm[[6]] <- do.call( gelnet_lin_opt, c(params[[4]], list(silent=TRUE, nonneg=TRUE)) )
+    purrr::map( mm[[6]]$w, expect_gte, 0 )
+    expect_lt( ff[[4]](mm[[4]]), ff[[4]](mm[[6]]) )
+
+    ## Compose model definitions using the "grammar of modeling"
+    dd <- list()
+    dd[[1]] <- gelnet( params[[1]]$X ) + model_lin( params[[1]]$z ) +
+        rglz_L1( params[[1]]$l1 ) + rglz_L2( params[[1]]$l2 )
+    dd[[2]] <- dd[[1]] + model_lin( params[[2]]$z, params[[2]]$a ) +
+        rglz_L1( params[[2]]$l1, params[[2]]$d )
+    dd[[3]] <- dd[[2]] + rglz_L2( params[[3]]$l2, params[[3]]$P )
+    dd[[4]] <- dd[[3]] + rglz_L2( params[[4]]$l2, params[[4]]$P, params[[4]]$m )
+    dd[[5]] <- dd[[4]] + model_lin( params[[4]]$z, params[[4]]$a, fix_bias=TRUE )
+    dd[[6]] <- dd[[4]] + model_lin( params[[4]]$z, params[[4]]$a, nonneg=TRUE )
+
+    ## Train based on model definitions
+    mdls <- purrr::map( dd, gelnet_train, silent=TRUE )
+    purrr::map2( mm, mdls, expect_equal )
+})
+
