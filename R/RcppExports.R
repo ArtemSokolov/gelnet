@@ -5,6 +5,10 @@ l1c_lin <- function(X, z, l2, a = NULL, d = NULL, P = NULL, m = NULL) {
     .Call('_gelnet_l1c_lin', PACKAGE = 'gelnet', X, z, l2, a, d, P, m)
 }
 
+l1c_blr <- function(X, y, l2, balanced, d = NULL, P = NULL, m = NULL) {
+    .Call('_gelnet_l1c_blr', PACKAGE = 'gelnet', X, y, l2, balanced, d, P, m)
+}
+
 #' One-class logistic regression objective function
 #'
 #' Evaluates the one-class objective function value for a given model

@@ -23,6 +23,23 @@ BEGIN_RCPP
     return rcpp_result_gen;
 END_RCPP
 }
+// l1c_blr
+double l1c_blr(arma::mat X, arma::Col<int> y, double l2, bool balanced, Nullable<NumericVector> d, Nullable<NumericMatrix> P, Nullable<NumericVector> m);
+RcppExport SEXP _gelnet_l1c_blr(SEXP XSEXP, SEXP ySEXP, SEXP l2SEXP, SEXP balancedSEXP, SEXP dSEXP, SEXP PSEXP, SEXP mSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< arma::mat >::type X(XSEXP);
+    Rcpp::traits::input_parameter< arma::Col<int> >::type y(ySEXP);
+    Rcpp::traits::input_parameter< double >::type l2(l2SEXP);
+    Rcpp::traits::input_parameter< bool >::type balanced(balancedSEXP);
+    Rcpp::traits::input_parameter< Nullable<NumericVector> >::type d(dSEXP);
+    Rcpp::traits::input_parameter< Nullable<NumericMatrix> >::type P(PSEXP);
+    Rcpp::traits::input_parameter< Nullable<NumericVector> >::type m(mSEXP);
+    rcpp_result_gen = Rcpp::wrap(l1c_blr(X, y, l2, balanced, d, P, m));
+    return rcpp_result_gen;
+END_RCPP
+}
 // gelnet_oclr_obj
 double gelnet_oclr_obj(arma::vec w, arma::mat X, double l1, double l2, Nullable<NumericVector> d, Nullable<NumericMatrix> P, Nullable<NumericVector> m);
 RcppExport SEXP _gelnet_gelnet_oclr_obj(SEXP wSEXP, SEXP XSEXP, SEXP l1SEXP, SEXP l2SEXP, SEXP dSEXP, SEXP PSEXP, SEXP mSEXP) {
@@ -156,6 +173,7 @@ END_RCPP
 
 static const R_CallMethodDef CallEntries[] = {
     {"_gelnet_l1c_lin", (DL_FUNC) &_gelnet_l1c_lin, 7},
+    {"_gelnet_l1c_blr", (DL_FUNC) &_gelnet_l1c_blr, 7},
     {"_gelnet_gelnet_oclr_obj", (DL_FUNC) &_gelnet_gelnet_oclr_obj, 7},
     {"_gelnet_gelnet_lin_obj", (DL_FUNC) &_gelnet_gelnet_lin_obj, 10},
     {"_gelnet_gelnet_blr_obj", (DL_FUNC) &_gelnet_gelnet_blr_obj, 10},

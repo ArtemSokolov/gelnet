@@ -83,7 +83,42 @@ double l1c_lin( arma::mat X, arma::vec z, double l2,
 
   return res;
 }
-		
+
+
+// Largest meaningful value of the L1 parameter (binary logistic regression)
+// Exported from C++ to R only
+// [[Rcpp::export]]
+double l1c_blr( arma::mat X, arma::Col<int> y,
+		double l2, bool balanced,
+		Nullable<NumericVector> d = R_NilValue,
+		Nullable<NumericMatrix> P = R_NilValue,
+		Nullable<NumericVector> m = R_NilValue )
+{
+  // Data dimensionality
+  int n = X.n_rows;
+
+  // Initialize sample weights and labels for regression
+  arma::vec z = (arma::conv_to<arma::vec>::from(y) - 0.5) / 0.25;
+  NumericVector a(n, 0.25);
+
+  // Update weights for the balanced case
+  if( balanced )
+    {
+      // Compute re-weighting coeffs for positive and negative samples
+      double wpos = sum(y) * 2.0;
+      double wneg = (n - sum(y)) * 2.0;
+      for( int i = 0; i < n; ++i )
+	{
+	  if( y(i) == 1 )
+	    a(i) = a(i) * n / wpos;
+	  else
+	    a(i) = a(i) * n / wneg;
+	}
+    }
+
+  return l1c_lin( X, z, l2, a, d, P, m );
+}
+
 // Worker for gelnet_lin_obj() that take pre-computed fits
 // Not exported
 double gelnet_lin_obj_w( arma::vec w, arma::vec s, arma::vec z,
