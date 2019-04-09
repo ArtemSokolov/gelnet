@@ -15,9 +15,9 @@ gen_params_lin <- function()
     A <- matrix( rnorm(p*p), p, p )
     params <- list( list(l1 = 0.1, l2 = 10, z = rnorm(n),
                          X = matrix(rnorm(n*p), n, p)) )
-    params[[2]] <- c( params[[1]], list(a = runif( n ), d = runif( p )) )
-    params[[3]] <- c( params[[2]], list( P = t(A) %*% A / p ) )
-    params[[4]] <- c( params[[3]], list(m = rnorm(p, sd=0.1)) )
+    params[[2]] <- purrr::list_modify( params[[1]], a = runif(n), d = runif(p) )
+    params[[3]] <- purrr::list_modify( params[[2]], P = t(A)%*%A/p )
+    params[[4]] <- purrr::list_modify( params[[3]], m = rnorm(p, sd=0.1) )
     params
 }
 
@@ -38,8 +38,7 @@ gen_modeldef_lin <- function( params )
 
 test_that( "Linear regression training", {
     ## Silently trains a linear GELnet model using the provided parameters
-    ftrain <- function( prms )
-        do.call( gelnet_lin_opt, c(prms, list(silent=TRUE)) )
+    ftrain <- gen_ftrain( gelnet_lin_opt )
 
     ## Generates a model evaluator using a given set of parameters
     fgen <- function( prms )
@@ -60,12 +59,12 @@ test_that( "Linear regression training", {
     expect_relopt( mm, ff )
 
     ## Test bias fixture
-    mm[[5]] <- ftrain( c(params[[4]], list(fix_bias=TRUE)) )
+    mm[[5]] <- ftrain( params[[4]], fix_bias=TRUE )
     expect_equal( mm[[5]]$b, with(params[[4]], sum(a*z)/sum(a)) )
     expect_lt( ff[[4]](mm[[4]]), ff[[4]](mm[[5]]) )
 
     ## Test non-negativity
-    mm[[6]] <- ftrain( c(params[[4]], list(nonneg=TRUE)) )
+    mm[[6]] <- ftrain( params[[4]], nonneg=TRUE )
     purrr::map( mm[[6]]$w, expect_gte, 0 )
     expect_lt( ff[[4]](mm[[4]]), ff[[4]](mm[[6]]) )
 
@@ -79,10 +78,8 @@ test_that( "Linear regression training", {
 
     ## Test the L1 ceiling computation
     l1c <- with( params[[4]], l1c_lin( X, z, l2, a, d, P, m ) )
-    p1 <- purrr::list_modify( params[[4]], l1=l1c )
-    p2 <- purrr::list_modify( params[[4]], l1=l1c-0.01 )
-    m1 <- ftrain(p1)
-    m2 <- ftrain(p2)
+    m1 <- ftrain(params[[4]], l1=l1c)
+    m2 <- ftrain(params[[4]], l1=l1c-0.01)
     expect_equal( sum(m1$w), 0 )
     expect_length( which(m2$w != 0), 1 )
 })

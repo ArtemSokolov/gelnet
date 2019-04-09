@@ -15,10 +15,10 @@ gen_params_blr <- function()
     A <- matrix( rnorm(p*p), p, p )
     params <- list( list(l1 = 0.1, l2 = 10, y = sample( c(0,1), n, replace=TRUE ),
                          X = matrix(rnorm(n*p), n, p)) )
-    params[[2]] <- c( params[[1]], list(d = runif( p )) )
-    params[[3]] <- c( params[[2]], list(P = t(A) %*% A / p) )
-    params[[4]] <- c( params[[3]], list(m = rnorm(p, sd=0.1)) )
-    params[[5]] <- c( params[[4]], list(balanced=TRUE) )
+    params[[2]] <- purrr::list_modify( params[[1]], d = runif(p) )
+    params[[3]] <- purrr::list_modify( params[[2]], P = t(A)%*%A/p )
+    params[[4]] <- purrr::list_modify( params[[3]], m = rnorm(p, sd=0.1) )
+    params[[5]] <- purrr::list_modify( params[[4]], balanced=TRUE )
     params
 }
 
@@ -38,8 +38,7 @@ gen_modeldef_blr <- function( params )
 
 test_that( "Binary logistic regression training", {
     ## Silently trains a logistic GELnet model using the provided parameters
-    ftrain <- function( prms )
-    { do.call( gelnet_blr_opt, c(prms, list(silent=TRUE)) ) }
+    ftrain <- gen_ftrain( gelnet_blr_opt )
 
     ## Generates a model evaluator using a given set of parameters
     fgen <- function( prms )
@@ -63,7 +62,7 @@ test_that( "Binary logistic regression training", {
     expect_lt( abs(mm[[5]]$b), abs(mm[[4]]$b) )
 
     ## Test non-negativity
-    mm[[6]] <- do.call( gelnet_blr_opt, c(params[[5]], list(nonneg=TRUE, silent=TRUE)) )
+    mm[[6]] <- ftrain( params[[5]], nonneg=TRUE, silent=TRUE )
     purrr::map( mm[[6]]$w, expect_gte, 0 )
     expect_lt( ff[[5]](mm[[5]]), ff[[5]](mm[[6]]) )
     
@@ -73,5 +72,8 @@ test_that( "Binary logistic regression training", {
     ## Train based on model definitions
     mdls <- purrr::map( dd, gelnet_train, silent=TRUE )
     purrr::map2( mm, mdls, expect_equal )
+
+    ## Test the L1 ceiling computation
+    
 })
 

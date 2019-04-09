@@ -14,9 +14,9 @@ gen_params_oclr <- function()
     set.seed(100)
     A <- matrix( rnorm(p*p), p, p )
     params <- list( list(l1 = 0.1, l2 = 10, X = matrix(rnorm(n*p), n, p)) )
-    params[[2]] <- c( params[[1]], list(d = runif( p )) )
-    params[[3]] <- c( params[[2]], list(P = t(A) %*% A / p) )
-    params[[4]] <- c( params[[3]], list(m = rnorm(p, sd=0.1)) )
+    params[[2]] <- purrr::list_modify( params[[1]], d = runif(p) )
+    params[[3]] <- purrr::list_modify( params[[2]], P = t(A)%*%A/p )
+    params[[4]] <- purrr::list_modify( params[[3]], m = rnorm(p, sd=0.1) )
     params
 }
 
@@ -34,8 +34,7 @@ gen_modeldef_oclr <- function( params )
 
 test_that( "One-class logistic regression training", {
     ## Silently trains a logistic GELnet model using the provided parameters
-    ftrain <- function( prms )
-    { do.call( gelnet_oclr_opt, c(prms, list(silent=TRUE)) ) }
+    ftrain <- gen_ftrain( gelnet_oclr_opt )
 
     ## Generates a model evaluator using a given set of parameters
     fgen <- function( prms )
@@ -55,7 +54,7 @@ test_that( "One-class logistic regression training", {
     expect_relopt( mm, ff )
 
     ## Test non-negativity
-    mm[[5]] <- do.call( gelnet_oclr_opt, c(params[[4]], list(silent=TRUE, nonneg=TRUE)) )
+    mm[[5]] <- ftrain( params[[4]], silent=TRUE, nonneg=TRUE )
     purrr::map( mm[[5]]$w, expect_gte, 0 )
     expect_lt( ff[[4]](mm[[4]]), ff[[4]](mm[[5]]) )
 

@@ -1,4 +1,16 @@
-## Custom expectation functions
+## Custom expectation functions and generators
+
+## Generates a silent model training function
+## prms - preset parameters
+## ... - dynamic parameters
+gen_ftrain <- function( f )
+{
+    function( prms, ... )
+    {
+        p <- purrr::list_modify( prms, silent=TRUE, ... )
+        do.call( f, p )
+    }
+}
 
 ## Ensures that training found the optimum by looking in the immediate
 ##  neighborhood of the solution model
