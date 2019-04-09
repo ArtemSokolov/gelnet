@@ -11,6 +11,7 @@ Author: Artem Sokolov
 Maintainer: Artem Sokolov <artem.sokolov@gmail.com>
 Depends: R (>= 3.1.0)
 Suggests: knitr, rmarkdown, tidyverse, rlang, testthat
+Encoding: UTF-8
 VignetteBuilder: knitr
 RoxygenNote: 6.1.1
 LinkingTo: Rcpp, RcppArmadillo
