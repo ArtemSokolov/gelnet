@@ -73,7 +73,19 @@ test_that( "Binary logistic regression training", {
     mdls <- purrr::map( dd, gelnet_train, silent=TRUE )
     purrr::map2( mm, mdls, expect_equal )
 
-    ## Test the L1 ceiling computation
-    
-})
+    ## Test the L1 ceiling computation (unbalanced case)
+    l1c <- with( params[[4]], l1c_blr(X, y, l2, FALSE, d, P, m) )
+    m1 <- ftrain( params[[4]], l1=l1c, eps=1e-20 )
+    m2 <- ftrain( params[[4]], l1=l1c+0.0001, eps=1e-20 )
+    expect_length( which(m1$w != 0), 1 )
+    expect_equal( sum(m2$w), 0 )
 
+    ## Test the L1 ceiling computation (balanced case)
+    l1cb <- with( params[[5]], l1c_blr(X, y, l2, TRUE, d, P, m) )
+    m1b <- ftrain( params[[5]], l1=l1cb, eps=1e-20 )
+    m2b <- ftrain( params[[5]], l1=l1cb+0.0001, eps=1e-20 )
+    m3b <- ftrain( params[[4]], l1=l1cb, eps=1e-20 )
+    expect_length( which(m1b$w != 0), 1 )
+    expect_equal( sum(m2b$w), 0 )
+    expect_length( which(m3b$w != 0), 1 )
+})
