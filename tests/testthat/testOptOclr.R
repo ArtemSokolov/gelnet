@@ -64,4 +64,11 @@ test_that( "One-class logistic regression training", {
     ## Train based on model definitions
     mdls <- purrr::map( dd, gelnet_train, silent=TRUE )
     purrr::map2( mm, mdls, expect_equal )
+
+    ## Test the L1 ceiling computation
+    l1c <- with( params[[4]], l1c_oclr(X, l2, d, P, m) )
+    m1 <- ftrain( params[[4]], l1=l1c )
+    m2 <- ftrain( params[[4]], l1=l1c-0.0001 )
+    expect_equal( sum(m1$w), 0 )
+    expect_length( which(m2$w != 0), 1 )
 })
