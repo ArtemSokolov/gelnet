@@ -25,7 +25,7 @@ L1_ceiling <- function( modeldef )
         l1c_oclr( modeldef$X, modeldef$l2,
                  modeldef$d, modeldef$P, modeldef$m )
     }
-    else if( is.factor(y) )
+    else if( is.factor(modeldef$y) )
     {
         ## Binary model
         ## Convert the labels to {0,1}
@@ -33,7 +33,7 @@ L1_ceiling <- function( modeldef )
         l1c_blr( modeldef$X, y, modeldef$l2, modeldef$balanced,
                 modeldef$d, modeldef$P, modeldef$m )
     }
-    else if( is.numeric(y) )
+    else if( is.numeric(modeldef$y) )
     {
         ## Liner regression model
         l1c_lin( modeldef$X, modeldef$y, modeldef$l2, modeldef$a,
