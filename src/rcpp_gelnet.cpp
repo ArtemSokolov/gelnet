@@ -128,7 +128,6 @@ double l1c_oclr( arma::mat X, double l2,
 		 Nullable<NumericVector> m = R_NilValue )
 {
   // Retrieve data dimensionality
-  int n = X.n_rows;
   int p = X.n_cols;
 
   // Compute offset due to translation coeffs: l2 * P %*% m
