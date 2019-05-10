@@ -51,8 +51,8 @@ test_that( "Binary logistic regression training", {
 
     ## Verify the basic model
     expect_length( which( mm[[1]]$w != 0 ), 21 )
-    expect_equal( mm[[1]]$b, 0.400053, tol=1e-5 )
-    expect_equal( mm[[1]]$w[21], -0.005406831, tol=1e-5 )
+    expect_equal( mm[[1]]$b, 0.4139836, tol=1e-5 )
+    expect_equal( mm[[1]]$w[21], 0.02048664, tol=1e-5 )
 
     ## Verify optimality of each model w.r.t. its obj. fun.
     purrr::map2( mm, ff, expect_optimal )
@@ -84,8 +84,6 @@ test_that( "Binary logistic regression training", {
     l1cb <- with( params[[5]], l1c_blr(X, y, l2, TRUE, d, P, m) )
     m1b <- ftrain( params[[5]], l1=l1cb, eps=1e-20 )
     m2b <- ftrain( params[[5]], l1=l1cb+0.0001, eps=1e-20 )
-    m3b <- ftrain( params[[4]], l1=l1cb, eps=1e-20 )
     expect_length( which(m1b$w != 0), 1 )
     expect_equal( sum(m2b$w), 0 )
-    expect_length( which(m3b$w != 0), 1 )
 })

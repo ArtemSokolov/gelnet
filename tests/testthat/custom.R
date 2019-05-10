@@ -54,7 +54,7 @@ expect_relopt <- function( lmd, lfn )
 
     ## Verify the arguments
     expect( length(lmd) == length(lfn),
-           str_c("Each model in ", act$lab, " must have a matching objective function") )
+           stringr::str_c("Each model in ", act$lab, " must have a matching objective function") )
 
     ## Traverse the models. For each, ensure it is more optimal for the
     ## corresponding objective function than other models in the list
