@@ -1,5 +1,14 @@
 ## Custom expectation functions and generators
 
+## A lifted purrr::partial
+## prms - list of preset parameters
+## ...  - dynamic parameters
+partial2 <- function( f, prms, ... )
+{
+    p <- purrr::list_modify( prms, ... )
+    do.call( purrr::partial, c(list(f),p) )
+}
+
 ## Generates a silent model training function
 ## prms - preset parameters
 ## ... - dynamic parameters
