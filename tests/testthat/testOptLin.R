@@ -2,19 +2,6 @@ context( "Linear regression model training" )
 
 source( "custom.R" )
 
-## Generates model definitions based on the provided set of parameters
-gen_modeldef_lin <- function( params )
-{
-    dd <- list()
-    dd[[1]] <- gelnet( params$X ) + model_lin( params$z ) +
-        rglz_L1( params$l1 ) + rglz_L2( params$l2 )
-    dd[[2]] <- dd[[1]] + model_lin( params$z, params$a ) +
-        rglz_L1( params$l1, params$d )
-    dd[[3]] <- dd[[2]] + rglz_L2( params$l2, params$P )
-    dd[[4]] <- dd[[3]] + rglz_L2( params$l2, params$P, params$m )
-    dd
-}
-
 test_that( "Linear regression training", {
     load( "data/lin.RData" )
 
@@ -41,7 +28,11 @@ test_that( "Linear regression training", {
     expect_relopt( mm, ff )
 
     ## Compose model definitions using the "grammar of modeling"
-    dd <- gen_modeldef_lin( params )
+    dd <- list()
+    dd[[1]] <- with( params, gelnet(X) + model_lin(z) + rglz_L1(l1) + rglz_L2(l2) )
+    dd[[2]] <- with( params, dd[[1]] + model_lin(z, a) + rglz_L1(l1, d) )
+    dd[[3]] <- with( params, dd[[2]] + rglz_L2(l2, P) )
+    dd[[4]] <- with( params, dd[[3]] + rglz_L2(l2, P, m) )
 
     ## Train based on model definitions
     ## Ensure equivalence to direct calling of gelnet_lin_opt()
