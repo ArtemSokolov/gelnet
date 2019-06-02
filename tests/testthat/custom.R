@@ -1,6 +1,6 @@
 ## Custom expectation functions and generators
 
-## A lifted purrr::partial
+## A semi-lifted purrr::partial
 ## prms - list of preset parameters
 ## ...  - dynamic parameters
 partial2 <- function( f, prms, ... )

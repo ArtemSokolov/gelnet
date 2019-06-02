@@ -2,21 +2,9 @@ context( "Linear regression model training" )
 
 source( "custom.R" )
 
-## Returns increasingly complex instantiations of f based on pre-generated
-##   linear regression data
-partial_lin <- function(f)
-{
-    load( "data/lin.RData" )
-    vv <- purrr::accumulate( list(c("l1", "l2", "z", "X"),
-                                  c("a", "d"), "P", "m"), c )
-    pp <- purrr::map( vv, ~c(list(f), params[.x]) )
-    purrr::map( pp, ~do.call(purrr::partial, .x) )
-}
-
 ## Generates model definitions based on the provided set of parameters
-gen_modeldef_lin <- function()
+gen_modeldef_lin <- function( params )
 {
-    load( "data/lin.RData" )
     dd <- list()
     dd[[1]] <- gelnet( params$X ) + model_lin( params$z ) +
         rglz_L1( params$l1 ) + rglz_L2( params$l2 )
@@ -24,16 +12,23 @@ gen_modeldef_lin <- function()
         rglz_L1( params$l1, params$d )
     dd[[3]] <- dd[[2]] + rglz_L2( params$l2, params$P )
     dd[[4]] <- dd[[3]] + rglz_L2( params$l2, params$P, params$m )
-    dd[[5]] <- dd[[4]] + model_lin( params$z, params$a, fix_bias=TRUE )
-    dd[[6]] <- dd[[4]] + model_lin( params$z, params$a, nonneg=TRUE )
     dd
 }
 
 test_that( "Linear regression training", {
-    ftrain <- partial_lin( gelnet_lin_opt )
-    fobj <- partial_lin( gelnet_lin_obj )
+    load( "data/lin.RData" )
 
+    ## Consider models of increasing complexity by subsampling
+    ##   the parameter space
+    vv <- purrr::accumulate( list(c("l1", "l2", "z", "X"),
+                                  c("a", "d"), "P", "m"), c )
+
+    ## Define training functions and compute corresponding models
+    ftrain <- purrr::map( vv, ~partial2(gelnet_lin_opt, params[.x]) )
     mm <- purrr::map( ftrain, do.call, list(silent=TRUE) )
+
+    ## Generate matching objective functions
+    fobj <- purrr::map( vv, ~partial2(gelnet_lin_obj, params[.x]) )
     ff <- purrr::map( fobj, purrr::lift_dl )
 
     ## Verify the basic model
@@ -45,24 +40,65 @@ test_that( "Linear regression training", {
     purrr::map2( mm, ff, expect_optimal )
     expect_relopt( mm, ff )
 
-    ## Test bias fixture
-    load( "data/lin.RData" )
-    mm[[5]] <- ftrain[[4]]( silent=TRUE, fix_bias=TRUE )
-    expect_equal( mm[[5]]$b, with(params, sum(a*z)/sum(a)) )
-    expect_lt( ff[[4]](mm[[4]]), ff[[4]](mm[[5]]) )
-
-    ## Test non-negativity
-    mm[[6]] <- ftrain[[4]]( silent=TRUE, nonneg=TRUE )
-    purrr::map( mm[[6]]$w, expect_gte, 0 )
-    expect_lt( ff[[4]](mm[[4]]), ff[[4]](mm[[6]]) )
-
     ## Compose model definitions using the "grammar of modeling"
-    dd <- gen_modeldef_lin()
+    dd <- gen_modeldef_lin( params )
 
     ## Train based on model definitions
     ## Ensure equivalence to direct calling of gelnet_lin_opt()
     mdls <- purrr::map( dd, gelnet_train, silent=TRUE )
     purrr::map2( mm, mdls, expect_equal )
+})
+
+test_that( "Fixing bias term", {
+    load( "data/lin.RData" )
+
+    ## Define the training and objective function
+    ftrain <- partial2( gelnet_lin_opt, params, silent=TRUE )
+    fobj <- purrr::lift_dl( partial2(gelnet_lin_obj, params) )
+
+    ## Compute models with and without a fixed bias term
+    m1 <- ftrain()
+    m2 <- ftrain( fix_bias=TRUE )
+
+    ## Verify the value of the bias term
+    expect_equal( m2$b, with(params, sum(a*z)/sum(a)) )
+
+    ## Compare models with and without a fixed bias term
+    ##   w.r.t. the objective function
+    expect_lt( fobj(m1), fobj(m2) )
+
+    ## Verify that grammar of modeling produces the same result
+    mdef <- with( params, gelnet(X) + model_lin(z, a, fix_bias=TRUE) +
+                          rglz_L1(l1, d) + rglz_L2(l2, P, m) )
+    expect_equal( gelnet_train(mdef, silent=TRUE), m2 )
+})
+
+test_that( "Non-negativity", {
+    load( "data/lin.RData" )
+
+    ## Define the training and objective function
+    ftrain <- partial2( gelnet_lin_opt, params, silent=TRUE )
+    fobj <- purrr::lift_dl( partial2(gelnet_lin_obj, params) )
+
+    ## Compute models with and without enforced negativity
+    m1 <- ftrain()
+    m2 <- ftrain( nonneg=TRUE )
+
+    ## Ensure non-negativity constraint is satisfied
+    purrr::map( m2$w, expect_gte, 0 )
+
+    ## Compare models with and without enforced negativity
+    ##   w.r.t the objective function
+    expect_lt( fobj(m1), fobj(m2) )
+
+    ## Verify that grammar of modeling produces the same result
+    mdef <- with( params, gelnet(X) + model_lin(z, a, nonneg=TRUE) +
+                          rglz_L1(l1, d) + rglz_L2(l2, P, m) )
+    expect_equal( gelnet_train(mdef, silent=TRUE), m2 )
+})
+
+test_that( "L1 ceiling", {
+    load( "data/lin.RData" )
 
     ## Test the L1 ceiling computation
     l1c <- with( params, l1c_lin( X, z, l2, a, d, P, m ) )
