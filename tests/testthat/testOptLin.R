@@ -88,14 +88,3 @@ test_that( "Non-negativity", {
     expect_equal( gelnet_train(mdef, silent=TRUE), m2 )
 })
 
-test_that( "L1 ceiling", {
-    load( "data/lin.RData" )
-
-    ## Test the L1 ceiling computation
-    l1c <- with( params, l1c_lin( X, z, l2, a, d, P, m ) )
-    m1 <- gen_ftrain( gelnet_lin_opt )( params, l1=l1c-0.0001)
-    m2 <- gen_ftrain( gelnet_lin_opt )( params, l1=l1c+0.0001)
-    expect_length( which(m1$w != 0), 1 )
-    expect_equal( sum(m2$w), 0 )
-})
-

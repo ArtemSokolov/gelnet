@@ -9,18 +9,6 @@ partial2 <- function( f, prms, ... )
     do.call( purrr::partial, c(list(f),p) )
 }
 
-## Generates a silent model training function
-## prms - preset parameters
-## ... - dynamic parameters
-gen_ftrain <- function( f )
-{
-    function( prms, ... )
-    {
-        p <- purrr::list_modify( prms, silent=TRUE, ... )
-        do.call( f, p )
-    }
-}
-
 ## Ensures that training found the optimum by looking in the immediate
 ##  neighborhood of the solution model
 ## model - a model object, as returned by, e.g., gelnet_lin_opt()

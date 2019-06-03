@@ -60,16 +60,3 @@ test_that( "Non-negativity", {
     expect_equal( gelnet_train(mdef, silent=TRUE), m2 )
 })
 
-test_that( "L1 ceiling", {
-    load( "data/oclr.RData" )
-
-    ## Set up the training function
-    ftrain <- gen_ftrain( gelnet_oclr_opt )
-
-    ## Test the L1 ceiling computation
-    l1c <- with( params, l1c_oclr(X, l2, d, P, m) )
-    m1 <- ftrain( params, l1=l1c )
-    m2 <- ftrain( params, l1=l1c-0.0001 )
-    expect_equal( sum(m1$w), 0 )
-    expect_length( which(m2$w != 0), 1 )
-})

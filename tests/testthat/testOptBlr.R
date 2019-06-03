@@ -86,23 +86,3 @@ test_that( "Non-negativity", {
     expect_equal( gelnet_train(mdef, silent=TRUE), m2 )
 })
 
-test_that( "L1 ceiling", {
-    load( "data/blr.RData" )
-
-    ## Set up the training function
-    ftrain <- gen_ftrain( gelnet_blr_opt )
-
-    ## Test the L1 ceiling computation (unbalanced case)
-    l1c <- with( params, l1c_blr(X, y, l2, FALSE, d, P, m) )
-    m1 <- ftrain( params, l1=l1c-0.0001, eps=1e-20 )
-    m2 <- ftrain( params, l1=l1c+0.0001, eps=1e-20 )
-    expect_length( which(m1$w != 0), 1 )
-    expect_equal( sum(m2$w), 0 )
-
-    ## Test the L1 ceiling computation (balanced case)
-    l1cb <- with( params, l1c_blr(X, y, l2, TRUE, d, P, m) )
-    m1b <- ftrain( params, l1=l1cb-0.6, eps=1e-20 )
-    m2b <- ftrain( params, l1=l1cb+0.0001, eps=1e-20 )
-    expect_length( which(m1b$w != 0), 1 )
-    expect_equal( sum(m2b$w), 0 )
-})
