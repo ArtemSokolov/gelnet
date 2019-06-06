@@ -20,6 +20,12 @@ test_that( "Linear regression", {
     ## L1 ceiling for linear regression
     l1c <- with( params, l1c_lin( X, z, l2, a, d, P, m ) )
     test_l1c( gelnet_lin_opt, params, l1c )
+
+    ## Ensure the "grammar of modeling" comes up with the same
+    ##   L1 ceiling value
+    mdef <- with( params, gelnet(X) + model_lin(z,a) +
+                          rglz_L1(l1,d) + rglz_L2(l2,P,m) )
+    expect_equal( L1_ceiling(mdef), l1c )
 })
 
 test_that( "Binary logistic regression", {
@@ -34,6 +40,15 @@ test_that( "Binary logistic regression", {
     l1c2 <- with( params, l1c_blr(X, y, l2, TRUE, d, P, m) )
     ftrain2 <- purrr::partial( gelnet_blr_opt, eps=1e-20, balanced=TRUE )
     test_l1c( ftrain2, params, l1c2 )
+
+    ## Ensure the "grammar of modeling" comes up with the same
+    ##   L1 ceiling values
+    mdef1 <- with( params, gelnet(X) + model_blr(factor(y, c(1,0))) +
+                           rglz_L1(l1,d) + rglz_L2(l2,P,m) )
+    mdef2 <- with( params, gelnet(X) + model_blr(factor(y, c(1,0)), balanced=TRUE) +
+                           rglz_L1(l1,d) + rglz_L2(l2,P,m) )
+    expect_equal( L1_ceiling(mdef1), l1c1 )
+    expect_equal( L1_ceiling(mdef2), l1c2 )
 })
 
 test_that( "One-class logistic regression", {
@@ -42,4 +57,9 @@ test_that( "One-class logistic regression", {
     ## L1 ceiling for one-class logistic regression
     l1c <- with( params, l1c_oclr(X, l2, d, P, m) )
     test_l1c( gelnet_oclr_opt, params, l1c )
+
+    ## Ensure the "grammar of modeling" comes up with the same
+    ##   L1 ceiling value
+    mdef <- with( params, gelnet(X) + rglz_L1(l1,d) + rglz_L2(l2,P,m) )
+    expect_equal( L1_ceiling(mdef), l1c )
 })
