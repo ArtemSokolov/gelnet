@@ -146,6 +146,7 @@ rglz_L2 <- function( l2, P=NULL, m=NULL )
 #'
 #' @param w_init p-by-1 vector of initial weight values
 #' @param b_init scalar, initial value for the bias term
+#' @return An initializer that can be combined with a model definition using + operator
 #' @export
 gel_init <- function( w_init = NULL, b_init = NULL )
 {
