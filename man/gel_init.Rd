@@ -11,6 +11,9 @@ gel_init(w_init = NULL, b_init = NULL)
 
 \item{b_init}{scalar, initial value for the bias term}
 }
+\value{
+An initializer that can be combined with a model definition using + operator
+}
 \description{
 Defines initial values for model weights and the bias term
 }
