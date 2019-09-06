@@ -50,6 +50,9 @@ gelnet_train <- function( modeldef, max_iter = 100L, eps = 1e-5, silent=FALSE, v
             }
             if( nf < modeldef$nFeats ) {l1top <- mdf$l1} else {l1bot <- mdf$l1}
         }
+
+        stop( "Unable to reach ", modeldef$nFeats, " non-zero features within ",
+             max_iter, " iterations" )
     }
 
     ## Compose the list of parameters
