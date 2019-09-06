@@ -35,7 +35,7 @@ gelnet_train <- function( modeldef, max_iter = 100L, eps = 1e-5, silent=FALSE, v
 
         for( iter in 1:max_iter )
         {
-            if( !silent ) cat( "Binary search iteration", i, ":" )
+            if( !silent ) cat( "Binary search iteration", iter, ":" )
 
             ## Train the model and adjust the L1 coefficient based on
             ##    the number of non-zero weights
