@@ -46,6 +46,9 @@ model_oclr <- function( nonneg=FALSE )
 #' @export
 model_blr <- function( y, nonneg=FALSE, balanced=FALSE )
 {
+    if( is.numeric(y) )
+        warning( "model_blr: implicitly coercing numeric vector to factor" )
+
     ## Hamdle non-factor character vectors
     y <- factor(y)
 
@@ -100,7 +103,7 @@ rglz_L1 <- function( l1, d=NULL )
 #' Alternative L1 regularizer
 #'
 #' Defines an L1 regularizer that results in the desired number of non-zero feature weights
-#' 
+#'
 #' The corresponding regularization coefficient is determined through binary search
 #'
 #' @param nFeats desired number of features with non-zero weights in the model
@@ -143,6 +146,7 @@ rglz_L2 <- function( l2, P=NULL, m=NULL )
 #'
 #' @param w_init p-by-1 vector of initial weight values
 #' @param b_init scalar, initial value for the bias term
+#' @return An initializer that can be combined with a model definition using + operator
 #' @export
 gel_init <- function( w_init = NULL, b_init = NULL )
 {

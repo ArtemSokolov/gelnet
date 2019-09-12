@@ -119,6 +119,52 @@ double l1c_blr( arma::mat X, arma::Col<int> y,
   return l1c_lin( X, z, l2, a, d, P, m );
 }
 
+// Largest meaningful value of the L1 parameter (one-class logistic regression)
+// Exported from C++ to R only
+// [[Rcpp::export]]
+double l1c_oclr( arma::mat X, double l2,
+		 Nullable<NumericVector> d = R_NilValue,
+		 Nullable<NumericMatrix> P = R_NilValue,
+		 Nullable<NumericVector> m = R_NilValue )
+{
+  // Retrieve data dimensionality
+  int p = X.n_cols;
+
+  // Compute offset due to translation coeffs: l2 * P %*% m
+  arma::vec ofs;
+  if( m.isNotNull() ) {
+    ofs = as<arma::vec>(m) * l2;
+    if( P.isNotNull() ) ofs = as<arma::mat>(P) * ofs;
+  }
+  else ofs.zeros(p);
+
+  // Identify the largest contributor to soft threshold
+  double res = 0;
+  for( int j = 0; j < p; ++j )
+    {
+      // Scale the j^th feature
+      arma::vec Xj = X.col(j) / 2.0;
+
+      // Apply the precomputed offset
+      double xy = mean(Xj) + ofs(j);
+
+      // Scale by feature weights (if any)
+      if( d.isNotNull() )
+	{
+	  NumericVector vd(d);
+	  xy /= vd[j];
+	}
+
+      // Compare to current largest
+      if( std::abs(xy) > res )
+	res = std::abs(xy);
+    }
+  
+  return res;
+}
+
+
+
 // Worker for gelnet_lin_obj() that take pre-computed fits
 // Not exported
 double gelnet_lin_obj_w( arma::vec w, arma::vec s, arma::vec z,

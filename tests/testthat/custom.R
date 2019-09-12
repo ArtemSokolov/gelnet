@@ -1,15 +1,12 @@
 ## Custom expectation functions and generators
 
-## Generates a silent model training function
-## prms - preset parameters
-## ... - dynamic parameters
-gen_ftrain <- function( f )
+## A semi-lifted purrr::partial
+## prms - list of preset parameters
+## ...  - dynamic parameters
+partial2 <- function( f, prms, ... )
 {
-    function( prms, ... )
-    {
-        p <- purrr::list_modify( prms, silent=TRUE, ... )
-        do.call( f, p )
-    }
+    p <- purrr::list_modify( prms, ... )
+    do.call( purrr::partial, c(list(f),p) )
 }
 
 ## Ensures that training found the optimum by looking in the immediate
@@ -54,7 +51,7 @@ expect_relopt <- function( lmd, lfn )
 
     ## Verify the arguments
     expect( length(lmd) == length(lfn),
-           str_c("Each model in ", act$lab, " must have a matching objective function") )
+           stringr::str_c("Each model in ", act$lab, " must have a matching objective function") )
 
     ## Traverse the models. For each, ensure it is more optimal for the
     ## corresponding objective function than other models in the list

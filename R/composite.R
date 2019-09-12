@@ -9,7 +9,8 @@
 #' @export
 `+.geldef` <- function( lhs, rhs )
 {
-    if( class(lhs) == "geldef" ) gelnetComposite( rhs, lhs )
+    ## Resolve `gelnet() + ...` vs. `... + gelnet()`
+    if( is(lhs, "geldef") ) gelnetComposite( rhs, lhs )
     else gelnetComposite( lhs, rhs )
 }
 

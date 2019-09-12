@@ -2,78 +2,87 @@ context( "Binary logistic regression model training" )
 
 source( "custom.R" )
 
-## Generates parameters for binary logistic regression testing
-gen_params_blr <- function()
-{
-    ## Preset dimensionality
-    n <- 20
-    p <- 50
-
-    ## Preset L1 and L2 penalty coefficients and generate a sequence of
-    ##   models increasing in complexity
-    set.seed(100)
-    A <- matrix( rnorm(p*p), p, p )
-    params <- list( list(l1 = 0.1, l2 = 10, y = sample( c(0,1), n, replace=TRUE ),
-                         X = matrix(rnorm(n*p), n, p)) )
-    params[[2]] <- purrr::list_modify( params[[1]], d = runif(p) )
-    params[[3]] <- purrr::list_modify( params[[2]], P = t(A)%*%A/p )
-    params[[4]] <- purrr::list_modify( params[[3]], m = rnorm(p, sd=0.1) )
-    params[[5]] <- purrr::list_modify( params[[4]], balanced=TRUE )
-    params
-}
-
-## Generates model definitions based on the provided set of parameters
-gen_modeldef_blr <- function( params )
-{
-    dd <- list()
-    dd[[1]] <- gelnet(params[[1]]$X) + model_blr(factor(params[[1]]$y, c(1,0))) +
-        rglz_L1( params[[1]]$l1 ) + rglz_L2( params[[1]]$l2 )
-    dd[[2]] <- dd[[1]] + rglz_L1( params[[2]]$l1, params[[2]]$d )
-    dd[[3]] <- dd[[2]] + rglz_L2( params[[3]]$l2, params[[3]]$P )
-    dd[[4]] <- dd[[3]] + rglz_L2( params[[4]]$l2, params[[4]]$P, params[[4]]$m )
-    dd[[5]] <- dd[[4]] + model_blr( factor(params[[5]]$y, c(1,0)), balanced=TRUE )
-    dd[[6]] <- dd[[5]] + model_blr( factor(params[[5]]$y, c(1,0)), TRUE, TRUE )
-    dd
-}
-
 test_that( "Binary logistic regression training", {
-    ## Silently trains a logistic GELnet model using the provided parameters
-    ftrain <- gen_ftrain( gelnet_blr_opt )
+    load( "data/blr.RData" )
 
-    ## Generates a model evaluator using a given set of parameters
-    fgen <- function( prms )
-    { function( mdl ) { do.call( gelnet_blr_obj, c(mdl,prms) ) } }
+    ## Consider models of increasing complexity by subsampling
+    ##   the parameter space
+    vv <- purrr::accumulate( list(c("l1", "l2", "y", "X"),
+                                  "d", "P", "m"), c )
+
+    ## Define training functions and compute corresponding models
+    ftrain <- purrr::map( vv, ~partial2(gelnet_blr_opt, params[.x]) )
+    mm <- purrr::map( ftrain, do.call, list(silent=TRUE) )
 
     ## Generate the models and matching objective functions
-    params <- gen_params_blr()
-    mm <- purrr::map( params, ftrain )
-    ff <- purrr::map( params, fgen )
+    fobj <- purrr::map( vv, ~partial2(gelnet_blr_obj, params[.x]) )
+    ff <- purrr::map( fobj, purrr::lift_dl )
 
     ## Verify the basic model
     expect_length( which( mm[[1]]$w != 0 ), 21 )
-    expect_equal( mm[[1]]$b, 0.400053, tol=1e-5 )
-    expect_equal( mm[[1]]$w[21], -0.005406831, tol=1e-5 )
+    expect_equal( mm[[1]]$b, 0.4139836, tol=1e-5 )
+    expect_equal( mm[[1]]$w[21], 0.02048664, tol=1e-5 )
 
     ## Verify optimality of each model w.r.t. its obj. fun.
     purrr::map2( mm, ff, expect_optimal )
     expect_relopt( mm, ff )
 
-    ## Balanced model should have bias term closer to 0
-    expect_lt( abs(mm[[5]]$b), abs(mm[[4]]$b) )
-
-    ## Test non-negativity
-    mm[[6]] <- ftrain( params[[5]], nonneg=TRUE, silent=TRUE )
-    purrr::map( mm[[6]]$w, expect_gte, 0 )
-    expect_lt( ff[[5]](mm[[5]]), ff[[5]](mm[[6]]) )
-    
     ## Compose model definitions using the "grammar of modeling"
-    dd <- gen_modeldef_blr( params )
-    
+    dd <- list()
+    dd[[1]] <- with( params, gelnet(X) + model_blr(factor(y, c(1,0))) +
+                             rglz_L1(l1) + rglz_L2(l2) )
+    dd[[2]] <- dd[[1]] + rglz_L1( params$l1, params$d )
+    dd[[3]] <- dd[[2]] + rglz_L2( params$l2, params$P )
+    dd[[4]] <- dd[[3]] + rglz_L2( params$l2, params$P, params$m )
+
     ## Train based on model definitions
     mdls <- purrr::map( dd, gelnet_train, silent=TRUE )
     purrr::map2( mm, mdls, expect_equal )
+})
 
-    ## Test the L1 ceiling computation
-    
+test_that( "Handling class imbalance", {
+    load( "data/blr.RData" )
+
+    ## Define the training and objective function
+    ftrain <- partial2( gelnet_blr_opt, params, silent=TRUE )
+    fobj <- purrr::lift_dl( partial2(gelnet_blr_obj, params) )
+
+    ## Compute models with and without balance
+    m1 <- ftrain()
+    m2 <- ftrain( balanced=TRUE )
+
+    ## Balanced model should have bias term closer to 0
+    expect_lt( abs(m2$b), abs(m1$b) )
+
+    ## Compare the two models against the objective function
+    expect_lt( fobj(m1), fobj(m2) )
+
+    ## Verify that grammar of modeling produces the same result
+    mdef <- with( params, gelnet(X) + model_blr(factor(y, c(1,0)), balanced=TRUE) +
+                          rglz_L1(l1, d) + rglz_L2(l2, P, m) )
+    expect_equal( gelnet_train(mdef, silent=TRUE), m2 )
+})
+
+test_that( "Non-negativity", {
+    load( "data/blr.RData" )
+
+    ## Define the training and objective function
+    ftrain <- partial2( gelnet_blr_opt, params, silent=TRUE )
+    fobj <- purrr::lift_dl( partial2(gelnet_blr_obj, params) )
+
+    ## Compute models with and without enforced negativity
+    m1 <- ftrain()
+    m2 <- ftrain( nonneg=TRUE )
+
+    ## Ensure non-negativity constraint is satisfied
+    purrr::map( m2$w, expect_gte, 0 )
+
+    ## Compare the two models against the objective function
+    expect_lt( fobj(m1), fobj(m2) )
+
+    ## Verify that grammar of modeling produces the same result
+    mdef <- with( params, gelnet(X) + model_blr(factor(y, c(1,0)), nonneg=TRUE) +
+                          rglz_L1(l1, d) + rglz_L2(l2, P, m) )
+    expect_equal( gelnet_train(mdef, silent=TRUE), m2 )
 })
 
