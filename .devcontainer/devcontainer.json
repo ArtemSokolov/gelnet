@@ -1,3 +1,6 @@
 {
-    "image": "ghcr.io/artemsokolov/devenv:rstudio-latest"
+    "image": "ghcr.io/artemsokolov/devenv:rstudio-latest",
+    "mounts": [
+        "source=/var/run/docker.sock,target=/var/run/docker.sock,type=bind"
+    ]
 }
