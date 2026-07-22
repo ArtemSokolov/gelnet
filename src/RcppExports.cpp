@@ -6,6 +6,11 @@
 
 using namespace Rcpp;
 
+#ifdef RCPP_USE_GLOBAL_ROSTREAM
+Rcpp::Rostream<true>&  Rcpp::Rcout = Rcpp::Rcpp_cout_get();
+Rcpp::Rostream<false>& Rcpp::Rcerr = Rcpp::Rcpp_cerr_get();
+#endif
+
 // l1c_lin
 double l1c_lin(arma::mat X, arma::vec z, double l2, Nullable<NumericVector> a, Nullable<NumericVector> d, Nullable<NumericMatrix> P, Nullable<NumericVector> m);
 RcppExport SEXP _gelnet_l1c_lin(SEXP XSEXP, SEXP zSEXP, SEXP l2SEXP, SEXP aSEXP, SEXP dSEXP, SEXP PSEXP, SEXP mSEXP) {

@@ -41,3 +41,5 @@ rsconnect/
 
 # Emacs
 *~
+/doc/
+/Meta/

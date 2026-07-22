@@ -1,0 +1,115 @@
+---
+title: "Basics"
+author: "Artem Sokolov"
+date: "`r Sys.Date()`"
+output:
+  rmarkdown::html_vignette:
+    toc: true
+vignette: >
+  %\VignetteIndexEntry{Basics}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+## Introduction
+
+The package implements a collection of Generalized Elastic Net (GELnet) solvers, as outlined in the following publication:
+https://doi.org/10.1371/journal.pcbi.1004790
+This vignette covers the basic usage of the gelnet package.
+
+Models are assembled from small, independent pieces that are combined with `+`, much like a
+[ggplot2](https://ggplot2.tidyverse.org/) plot is built up from geoms, scales and themes added to
+a base `ggplot()` call. A model definition always starts with `gelnet(X)`, and is then extended
+with a task (what is being predicted) and one or more regularizers (how the model is penalized).
+The resulting definition is handed to `gelnet_train()` to fit the model. Nearly all of the
+regularization pieces have reasonable defaults, so the interface stays simple when the extra
+flexibility isn't needed.
+
+## Building your first GELnet model
+
+Let $X$ be a samples-by-features data matrix and $y$ be a column vector of labels.
+Typically, $X$ and $y$ are determined by the prediction task at hand, but for the purposes of this tutorial, we are going to generate them randomly:
+```{r}
+X <- matrix( rnorm( 1000 ), 20, 50 )
+y <- rnorm( 20 )
+```
+
+Let's further assume that we are given a feature-feature relationship matrix $A$.
+If working with genomic features, $A$ might be the adjacency of a gene-gene interaction network.
+Again, we are going to generate a random matrix for the purposes of this tutorial:
+```{r}
+A <- matrix( sample( 0:1, 50*50, repl=TRUE ), 50, 50 )
+A <- A & t(A)  ## Make the matrix symmetric
+```
+
+We are now going to utilize the GELnet toolkit to learn a linear regression model, such that the model weights are more similar for the features that share an interaction on $A$.
+As discussed in the manuscript, this can be achieved by formulating a feature-feature penalty matrix using either the graph Laplacian or $(I-D)$, where $D$ is the graph diffusion matrix and $I$ is the identity matrix.
+The gelnet package provides a function to compute the graph Laplacian from the adjacency.
+Here, we utilize the normalized Laplacian to keep the penalty term on the same scale as the traditional ridge regression:
+```{r}
+library( gelnet )
+L <- adj2nlapl(A)
+```
+
+A model definition is assembled by starting with the data matrix, adding a task 
+(`model_lin()` for linear regression) and the L1- and L2-norm regularizers:
+```{r}
+mdef <- gelnet(X) + model_lin(y) + rglz_L1(0.1) + rglz_L2(1, P = L)
+```
+where we set the L1-norm and L2-norm penalties to 0.1 and 1, respectively.
+The terms can be added in any order, and the definition can be built up incrementally.
+
+The model is trained by handing the definition to `gelnet_train()`:
+```{r}
+model <- gelnet_train( mdef )
+```
+The response for new samples is computed via the dot product with the weights:
+```{r}
+Xnew <- matrix( rnorm( 500 ), 10, 50 )
+Xnew %*% model$w + model$b
+```
+
+## Other regression problems
+
+Linear regression is one of the three types of prediction problems supported by the package.
+The other two are binary logistic regression and one-class logistic regression.
+The latter is outlined in the following paper: https://doi.org/10.1142/9789814749411_0037
+
+The package recognizes the problem type based on which task is added to the model definition:
+`model_lin()` for linear regression, `model_blr()` for binary logistic regression, and
+`model_oclr()` for one-class logistic regression.
+To train a binary predictor, we have to provide $y$ as a two-level factor, where the first level is treated as the positive class.
+```{r}
+y <- factor( y > 0, levels=c(TRUE,FALSE) )
+mdef2 <- gelnet(X) + model_blr(y) + rglz_L1(0.1) + rglz_L2(1, P = L)
+model2 <- gelnet_train( mdef2 )
+```
+
+If we were to score the training data using this model, we can observe that the positive samples are receiving higher scores than the negative ones
+```{r}
+data.frame( scores= X %*% model2$w + model2$b, labels= y )
+```
+However, if there is class imbalance, the scores will tend to be skewed towards the class with more samples.
+This can be addressed by using the `balanced` argument of `model_blr()`:
+```{r}
+mdef2bal <- gelnet(X) + model_blr(y, balanced=TRUE) + rglz_L1(0.1) + rglz_L2(1, P = L)
+model2bal <- gelnet_train( mdef2bal )
+data.frame( scores= X %*% model2bal$w + model2bal$b, labels= y )
+```
+
+Traditionally, the loss function for logistic regression is averaged over $n$, the number of samples.
+This causes every sample to make the same contribution to the loss, which is what causes the skew towards the larger class.
+By using the balanced flag, the problem is reformulated slightly such that the loss is averaged over the positive and negative samples separately, and then the mean of both averages is used as the overall loss.
+
+Finally, we can build a one-class logistic regression model using just the positive samples.
+To train a one-class model we add `model_oclr()`, which requires no labels:
+```{r}
+j <- which( y == TRUE )
+mdef1 <- gelnet(X[j,]) + model_oclr() + rglz_L1(0.1) + rglz_L2(1, P = L)
+model1 <- gelnet_train( mdef1 )
+```
+
+The model can now be used as a detector that recognizes the positive samples
+```{r}
+data.frame( scores= X %*% model1$w, labels= y )
+```
