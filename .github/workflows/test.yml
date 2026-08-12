@@ -32,4 +32,4 @@ jobs:
           extra-packages: local::.
 
       - name: Run tests
-        run: Rscript -e 'testthat::test_check("gelnet")'
+        run: Rscript -e 'testthat::test_dir("tests/testthat")'
