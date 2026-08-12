@@ -1,5 +1,8 @@
 # gelnet
 
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+[![test](https://github.com/ArtemSokolov/gelnet/actions/workflows/test.yml/badge.svg)](https://github.com/ArtemSokolov/gelnet/actions/workflows/test.yml)
+
 Generalized Elastic Nets
 
 `gelnet` implements several extensions of the elastic net regularization scheme: individual
