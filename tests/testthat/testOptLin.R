@@ -88,3 +88,32 @@ test_that( "Non-negativity", {
     expect_equal( gelnet_train(mdef, silent=TRUE), m2 )
 })
 
+test_that( "Initialization of w.init and b.init", {
+    load( "data/lin.RData" )
+    p <- ncol(params$X)
+
+    ## With max_iter = 0, no coordinate descent updates take place, so the
+    ##  returned model reflects the (possibly auto-computed) initial values
+    ftrain <- partial2( gelnet_lin_opt, params, max_iter=0, silent=TRUE )
+
+    ## When w_init / b_init are not supplied, the weights default to a zero
+    ##  vector, and the bias defaults to the sample-weighted mean of the response
+    m0 <- ftrain()
+    expect_equal( m0$w, rep(0, p) )
+    expect_equal( m0$b, with(params, sum(a*z)/sum(a)) )
+
+    ## Without sample weights, the bias defaults to the unweighted mean of the response
+    ftrain_noa <- partial2( gelnet_lin_opt, params[c("l1", "l2", "z", "X")],
+                            max_iter=0, silent=TRUE )
+    m1 <- ftrain_noa()
+    expect_equal( m1$w, rep(0, p) )
+    expect_equal( m1$b, mean(params$z) )
+
+    ## Explicitly-provided initial values are used verbatim, rather than computed
+    w_init <- rnorm(p)
+    b_init <- rnorm(1)
+    m2 <- ftrain( w_init=w_init, b_init=b_init )
+    expect_equal( m2$w, w_init )
+    expect_equal( m2$b, b_init )
+})
+
