@@ -16,7 +16,7 @@ test_that( "Binary logistic regression training", {
 
     ## Generate the models and matching objective functions
     fobj <- purrr::map( vv, ~partial2(gelnet_blr_obj, params[.x]) )
-    ff <- purrr::map( fobj, purrr::lift_dl )
+    ff <- purrr::map( fobj, lift_dl )
 
     ## Verify the basic model
     expect_length( which( mm[[1]]$w != 0 ), 21 )
@@ -45,7 +45,7 @@ test_that( "Handling class imbalance", {
 
     ## Define the training and objective function
     ftrain <- partial2( gelnet_blr_opt, params, silent=TRUE )
-    fobj <- purrr::lift_dl( partial2(gelnet_blr_obj, params) )
+    fobj <- lift_dl( partial2(gelnet_blr_obj, params) )
 
     ## Compute models with and without balance
     m1 <- ftrain()
@@ -68,7 +68,7 @@ test_that( "Non-negativity", {
 
     ## Define the training and objective function
     ftrain <- partial2( gelnet_blr_opt, params, silent=TRUE )
-    fobj <- purrr::lift_dl( partial2(gelnet_blr_obj, params) )
+    fobj <- lift_dl( partial2(gelnet_blr_obj, params) )
 
     ## Compute models with and without enforced negativity
     m1 <- ftrain()

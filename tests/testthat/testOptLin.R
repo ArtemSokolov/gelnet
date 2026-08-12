@@ -16,7 +16,7 @@ test_that( "Linear regression training", {
 
     ## Generate matching objective functions
     fobj <- purrr::map( vv, ~partial2(gelnet_lin_obj, params[.x]) )
-    ff <- purrr::map( fobj, purrr::lift_dl )
+    ff <- purrr::map( fobj, lift_dl )
 
     ## Verify the basic model
     expect_length( which( mm[[1]]$w != 0 ), 30 )
@@ -45,7 +45,7 @@ test_that( "Fixing bias term", {
 
     ## Define the training and objective function
     ftrain <- partial2( gelnet_lin_opt, params, silent=TRUE )
-    fobj <- purrr::lift_dl( partial2(gelnet_lin_obj, params) )
+    fobj <- lift_dl( partial2(gelnet_lin_obj, params) )
 
     ## Compute models with and without a fixed bias term
     m1 <- ftrain()
@@ -69,7 +69,7 @@ test_that( "Non-negativity", {
 
     ## Define the training and objective function
     ftrain <- partial2( gelnet_lin_opt, params, silent=TRUE )
-    fobj <- purrr::lift_dl( partial2(gelnet_lin_obj, params) )
+    fobj <- lift_dl( partial2(gelnet_lin_obj, params) )
 
     ## Compute models with and without enforced negativity
     m1 <- ftrain()

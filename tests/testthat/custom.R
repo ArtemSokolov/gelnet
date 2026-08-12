@@ -1,5 +1,11 @@
 ## Custom expectation functions and generators
 
+## Replacement for purrr::lift_dl(), deprecated as of purrr 1.0.0
+lift_dl <- function( f )
+{
+    function( l, ... ) do.call( f, c(l, list(...)) )
+}
+
 ## A semi-lifted purrr::partial
 ## prms - list of preset parameters
 ## ...  - dynamic parameters
